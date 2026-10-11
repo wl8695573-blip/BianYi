@@ -36,6 +36,8 @@ function Run-Checked([string] $Exe, [string] $Arguments, [int] $Expected = 0) {
     $stdout = Join-Path $sandbox ($runId + '-stdout.txt')
     $stderr = Join-Path $sandbox ($runId + '-stderr.txt')
     $process = Start-Process -FilePath $Exe -ArgumentList $Arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+    # Keep the native process handle open so Windows PowerShell can read a short-lived process's exit code.
+    $null = $process.Handle
     if (-not $process.WaitForExit(60000)) { $process.Kill(); throw "Process did not finish: $Exe" }
     if ($process.ExitCode -ne $Expected) {
         $details = Get-Content -LiteralPath $stderr -Raw
