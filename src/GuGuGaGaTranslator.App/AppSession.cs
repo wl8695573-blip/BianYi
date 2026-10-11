@@ -202,6 +202,25 @@ public sealed partial class AppSession : IAsyncDisposable
         return TargetRegionResolver.Resolve(local, client, Config.Target.ReferenceClientWidth, Config.Target.ReferenceClientHeight);
     }
 
+    public Int32Rect? ResolveSpeakerRegion()
+    {
+        var target = Config.Target;
+        var window = FindTarget();
+        return target.SpeakerRegion is { IsUsable: true } local && window is { IsMinimized: false, HasClientArea: true }
+            ? TargetRegionResolver.Resolve(local, window.ClientRect, target.SpeakerReferenceWidth, target.SpeakerReferenceHeight)
+            : null;
+    }
+
+    public void SetSpeakerRegion(WindowInfo window, Int32Rect selection)
+    {
+        SetTarget(window);
+        var client = window.ClientRect;
+        Config.Target.SpeakerRegion = new(selection.X - client.X, selection.Y - client.Y, selection.Width, selection.Height);
+        Config.Target.SpeakerReferenceWidth = client.Width;
+        Config.Target.SpeakerReferenceHeight = client.Height;
+        ForgetContext();
+    }
+
     /// <summary>Adopt a window as the target without touching the region it already has; used by「一键框选并翻译」.</summary>
     public void SetTarget(WindowInfo window)
     {
@@ -210,6 +229,9 @@ public sealed partial class AppSession : IAsyncDisposable
             RememberTargetSettings();
             var saved = Config.SavedTargets.LastOrDefault(item => item.Identity.Equals(window.Identity, StringComparison.OrdinalIgnoreCase));
             Config.Target.Region = saved?.Region;
+            Config.Target.SpeakerRegion = saved?.SpeakerRegion;
+            Config.Target.SpeakerReferenceWidth = saved?.SpeakerReferenceWidth ?? 0;
+            Config.Target.SpeakerReferenceHeight = saved?.SpeakerReferenceHeight ?? 0;
             Config.Target.ReferenceClientWidth = saved?.ReferenceClientWidth ?? 0;
             Config.Target.ReferenceClientHeight = saved?.ReferenceClientHeight ?? 0;
             Config.Target.ManualProfile = saved?.ManualProfile ?? false;
@@ -237,6 +259,9 @@ public sealed partial class AppSession : IAsyncDisposable
         {
             Identity = Config.Target.Identity,
             Region = Config.Target.Region,
+            SpeakerRegion = Config.Target.SpeakerRegion,
+            SpeakerReferenceWidth = Config.Target.SpeakerReferenceWidth,
+            SpeakerReferenceHeight = Config.Target.SpeakerReferenceHeight,
             ReferenceClientWidth = Config.Target.ReferenceClientWidth,
             ReferenceClientHeight = Config.Target.ReferenceClientHeight,
             From = Config.Translation.From, To = Config.Translation.To, OcrLanguage = Config.Ocr.Language,
@@ -333,6 +358,9 @@ public sealed partial class AppSession : IAsyncDisposable
         var settings = new PipelineSettings
         {
             RegionProvider = ResolveRegion,
+            SpeakerRegionProvider = ResolveSpeakerRegion,
+            CorrectOcr = (text, field) => OcrCorrections.Apply(text, _languages.From,
+                Config.Translation.ActiveProfile, field, Config.Ocr.Corrections ?? []),
             TargetHandle = () => FindTarget()?.Handle ?? 0,
             IsScreenCapture = Config.Target.CaptureBackend.Equals("screen", StringComparison.OrdinalIgnoreCase),
             CaptureAsync = CaptureFrameAsync,
@@ -358,7 +386,7 @@ public sealed partial class AppSession : IAsyncDisposable
                 MaskOwnWindows = Config.Pipeline.MaskOwnWindows,
                 // RapidOCR 内部自己会缩放,提前放大只是多算一遍随后被丢掉的像素;
                 // 系统识别器则相反,小字放大后好读得多。
-                OcrScale = Config.Ocr.Engine.Equals("rapidocr", StringComparison.OrdinalIgnoreCase)
+                OcrScale = recognizer is FourLanguageRecognizer or RapidOcrRecognizer
                     ? 1.0
                     : Config.Ocr.Scale,
                 OcrGrayscale = Config.Ocr.Grayscale,
@@ -380,7 +408,7 @@ public sealed partial class AppSession : IAsyncDisposable
         Pipeline.Start();
 
         Notice?.Invoke($"已开始:识别 {recognizer.Id} · 翻译 {_translator.Id}"
-            + (Config.Ocr.Language.Equals("auto", StringComparison.OrdinalIgnoreCase)
+            + (recognizer is FourLanguageRecognizer ? " · 内置四语模型（无需 Windows 语言包）" : Config.Ocr.Language.Equals("auto", StringComparison.OrdinalIgnoreCase)
                 ? " · 识别语言为 auto(逐个已安装语言尝试,取最像文字的结果)"
                 : recognizer.LanguageTag.StartsWith(Config.Ocr.Language, StringComparison.OrdinalIgnoreCase)
                     ? string.Empty
@@ -693,15 +721,33 @@ public sealed partial class AppSession : IAsyncDisposable
 
         if (Config.Ocr.Language.Equals("auto", StringComparison.OrdinalIgnoreCase))
         {
+            if (new[] { "ja", "en", "zh", "ko" }.Any(primary => !WindowsOcrRecognizer.AvailableLanguages
+                    .Any(tag => tag.StartsWith(primary, StringComparison.OrdinalIgnoreCase))))
+            {
+                Notice?.Invoke("Windows OCR 未安装全部四种语言，自动识别使用内置四语模型。");
+                return new FourLanguageRecognizer(new RapidOcrSettings
+                {
+                    ModelDirectory = string.IsNullOrWhiteSpace(Config.Ocr.RapidModelDirectory)
+                        ? RapidOcrRecognizer.DefaultModelDirectory() : Config.Ocr.RapidModelDirectory,
+                    LimitSideLen = Math.Max(640, Config.Ocr.RapidLimitSideLen), UseGpu = Config.Ocr.RapidUseGpu
+                }, () => Config.Ocr.Language);
+            }
             var preferred = new[] { "ja", "en-US", "zh-Hans-CN", "ko-KR" }.Concat(fallbacks).Distinct(StringComparer.OrdinalIgnoreCase);
             // 只装了一种引擎就没有可挑的,直接返回单引擎识别器。
             var multi = MultiLanguageRecognizer.TryCreate(preferred, maxCandidates: 4);
             return multi is not null ? multi : MultiLanguageRecognizer.TryCreateSingle(preferred);
         }
 
-        if (Config.Ocr.Language.StartsWith("ko", StringComparison.OrdinalIgnoreCase))
-            return WindowsOcrRecognizer.TryCreate(Config.Ocr.Language);
-        return WindowsOcrRecognizer.TryCreateWithFallback(Config.Ocr.Language, fallbacks);
+        var exact = WindowsOcrRecognizer.TryCreate(Config.Ocr.Language);
+        if (exact is not null) return exact;
+        Notice?.Invoke($"Windows 未安装 {Config.Ocr.Language} OCR，使用内置四语模型识别该语言。");
+        return new FourLanguageRecognizer(new RapidOcrSettings
+        {
+            ModelDirectory = string.IsNullOrWhiteSpace(Config.Ocr.RapidModelDirectory)
+                ? RapidOcrRecognizer.DefaultModelDirectory() : Config.Ocr.RapidModelDirectory,
+            LimitSideLen = Math.Max(640, Config.Ocr.RapidLimitSideLen),
+            UseGpu = Config.Ocr.RapidUseGpu,
+        }, () => Config.Ocr.Language);
     }
 
     public async ValueTask DisposeAsync()

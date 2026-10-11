@@ -95,6 +95,8 @@ internal static class Program
             overlay.Configure(new OverlayConfig { ShowSource = true, ShowLanguageBar = false, TextOutline = false }, new LanguagePair("ja", "zh-Hans"));
             ((TextBlock)typeof(OverlayWindow).GetField("_sourceText", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!).Text = "明日もここで会いましょう。";
             ((TextBlock)typeof(OverlayWindow).GetField("_translationText", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!).Text = "明天我们还在这里见面吧。";
+            var speaker = (TextBlock)typeof(OverlayWindow).GetField("_speakerText", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+            speaker.Text="协会称号｜角色姓名"; speaker.Visibility=Visibility.Visible;
             Render((FrameworkElement)overlay.Content, 650, 130, Path.Combine(output, "screenshot-overlay.png"));
             var bar = new LanguageBarWindow();
             bar.Configure(DefaultLanguagePresets.Create(), new LanguagePair("auto", "zh-Hans"), false, false, true, "边狱巴士");

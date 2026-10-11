@@ -13,6 +13,7 @@ namespace GuGuGaGaTranslator.Core.Pipeline;
 /// <summary>What the pipeline decided on one iteration.</summary>
 public enum PipelineStatus
 {
+    Recognizing,
     NoRegion,
 
     Unchanged,
@@ -64,6 +65,10 @@ public sealed record PipelineUpdate
     public OcrResult? Ocr { get; init; }
 
     public string SourceText { get; init; } = string.Empty;
+    public string RawSourceText { get; init; } = string.Empty;
+    public string SpeakerSource { get; init; } = string.Empty;
+    public string SpeakerTranslation { get; init; } = string.Empty;
+    public TranslationErrorKind? ErrorKind { get; init; }
 
     public string? Translation { get; init; }
 
@@ -159,6 +164,8 @@ public sealed record PipelineSettings
     /// <summary>Resolves the region to read, in screen pixels, on every iteration: a callback rather than
     /// a rectangle so the region follows the target window as it moves.</summary>
     public required Func<Int32Rect?> RegionProvider { get; init; }
+    public Func<Int32Rect?> SpeakerRegionProvider { get; init; } = () => null;
+    public Func<string, string, string> CorrectOcr { get; init; } = (text, _) => text;
 
     public required ITextRecognizer Recognizer { get; init; }
 
@@ -201,11 +208,15 @@ public sealed class TranslationPipeline : IAsyncDisposable
     private long _revision;
     private volatile string? _pendingSource;
     private Int32Rect? _lastRegion;
+    private Int32Rect? _lastSpeakerRegion;
+    private string _lastSpeakerSource = "";
+    private string _lastSpeakerTranslation = "";
+    private volatile bool _bypassNext;
     private readonly TextStabilityGate _textStability = new();
     private string? _failedSource;
     private int _failedAttempts;
 
-    private sealed record TranslationWork(long Revision, TranslationRequest Request, PipelineUpdate Update);
+    private sealed record TranslationWork(long Revision, TranslationRequest Request, PipelineUpdate Update, bool BypassCache = false);
     private static Channel<TranslationWork> CreateQueue() => Channel.CreateBounded<TranslationWork>(
         new BoundedChannelOptions(1) { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true, SingleWriter = true });
 
@@ -269,6 +280,15 @@ public sealed class TranslationPipeline : IAsyncDisposable
     /// <summary>Ask the next iteration to recognize regardless of change detection.</summary>
     public void Invalidate() => _forceNext = true;
 
+    public void RetranslateCurrent()
+    {
+        lock (_state)
+        {
+            InvalidateTranslation();
+            _bypassNext = true;
+        }
+    }
+
     /// <summary>Forget the line already translated and the running context, so the next recognition is
     /// translated again: after a language, engine, or glossary change the old lines would mislead it.</summary>
     public void InvalidateTranslation()
@@ -280,6 +300,8 @@ public sealed class TranslationPipeline : IAsyncDisposable
             _pendingSource = null;
             _lastSourceText = null;
             _lastTranslation = null;
+            _lastSpeakerSource = _lastSpeakerTranslation = "";
+            _bypassNext = false;
             _lastSignature = null;
             _lastCells = null;
             _textStability.Reset();
@@ -343,6 +365,7 @@ public sealed class TranslationPipeline : IAsyncDisposable
                     Status = PipelineStatus.Error,
                     At = DateTimeOffset.Now,
                     Error = TranslationErrors.Describe(exception),
+                    ErrorKind = TranslationErrors.Kind(exception),
                     TotalDuration = iteration.Elapsed,
                 });
                 await SafeDelayAsync(_options.ErrorBackoffMs, cancellationToken).ConfigureAwait(false);
@@ -372,15 +395,20 @@ public sealed class TranslationPipeline : IAsyncDisposable
         }
 
         var captureWatch = Stopwatch.StartNew();
-        if (_lastRegion != region)
+        var speakerRegion = _settings.SpeakerRegionProvider();
+        if (_lastRegion != region || _lastSpeakerRegion != speakerRegion)
         {
+            var bypass = _bypassNext;
             InvalidateTranslation();
+            _bypassNext = bypass;
             _lastRegion = region;
+            _lastSpeakerRegion = speakerRegion;
         }
         var revision = Interlocked.Read(ref _revision);
+        var captureRegion = speakerRegion is { Width: > 0, Height: > 0 } sr ? Union(region.Value, sr) : region.Value;
         var frame = _settings.CaptureAsync is { } captureAsync
-            ? await captureAsync(region.Value, cancellationToken).ConfigureAwait(false)
-            : _settings.Capture?.Invoke(region.Value) ?? ScreenCapture.CaptureScreenRegion(region.Value);
+            ? await captureAsync(captureRegion, cancellationToken).ConfigureAwait(false)
+            : _settings.Capture?.Invoke(captureRegion) ?? ScreenCapture.CaptureScreenRegion(captureRegion);
         // 先抹掉自己的窗口再判断画面有没有变:否则语言条上的按钮高亮、翻译框里换了一句话,
         // 都会被当成「游戏画面变了」而触发一次多余的识别。
         if (_options.MaskOwnWindows && _settings.IsScreenCapture)
@@ -407,6 +435,8 @@ public sealed class TranslationPipeline : IAsyncDisposable
                 SignatureDistance = distance,
                 SourceText = _lastSourceText ?? string.Empty,
                 Translation = _pendingSource is null ? _lastTranslation : null,
+                SpeakerSource = _lastSpeakerSource,
+                SpeakerTranslation = _lastSpeakerTranslation,
                 CaptureDuration = captureWatch.Elapsed,
                 TotalDuration = iteration.Elapsed,
             });
@@ -415,8 +445,14 @@ public sealed class TranslationPipeline : IAsyncDisposable
 
         _forceNext = false;
 
-        var prepared = ImageOps.Upscale(ImageOps.ToGrayscale(frame, _options.OcrGrayscale), _options.OcrScale);
+        Publish(new PipelineUpdate { Status = PipelineStatus.Recognizing, At = DateTimeOffset.Now, Revision = revision });
+        var dialogueFrame = captureRegion == region.Value ? frame : Crop(frame, captureRegion, region.Value);
+        var prepared = Prepare(dialogueFrame);
         var ocr = await _settings.Recognizer.RecognizeAsync(prepared, cancellationToken).ConfigureAwait(false);
+        OcrResult? speakerOcr = null;
+        if (speakerRegion is { Width: > 0, Height: > 0 } speakerRect)
+            speakerOcr = await _settings.Recognizer.RecognizeAsync(Prepare(Crop(frame, captureRegion, speakerRect)), cancellationToken).ConfigureAwait(false);
+        var ocrDuration = ocr.Duration + (speakerOcr?.Duration ?? TimeSpan.Zero);
         Interlocked.Increment(ref _recognitions);
         if (revision != Interlocked.Read(ref _revision) || _paused)
             return;
@@ -425,28 +461,31 @@ public sealed class TranslationPipeline : IAsyncDisposable
         _lastCells = cells;
         _lastRecognizedAt = DateTimeOffset.Now;
 
-        var sourceText = TextNormalizer.Tidy(ocr.Text);
+        var sourceText = TextNormalizer.Tidy(_settings.CorrectOcr(ocr.Text, "body"));
+        var speakerSource = speakerOcr is null ? "" : _settings.CorrectOcr(OcrCorrections.Speaker(speakerOcr, _settings.Languages().From), "speaker");
+        var identity = speakerSource.Length == 0 ? sourceText : speakerSource + "\n" + sourceText;
         var skip = SkipReason(sourceText, _settings.Languages().From);
-        if (skip != PipelineSkipReason.None || sourceText.Length < _options.MinTextLength)
+        var minimumLength = speakerRegion is not null && _options.MinTextLength == 4 ? 2 : _options.MinTextLength;
+        if (skip != PipelineSkipReason.None || sourceText.Length < minimumLength)
         {
             InvalidateTranslation();
             // A flat colour means the problem is upstream of recognition, not in it.
-            var blank = sourceText.Length == 0 && IsBlank(frame);
+            var blank = sourceText.Length == 0 && IsBlank(dialogueFrame);
             Publish(new PipelineUpdate
             {
                 Status = blank ? PipelineStatus.Blank : PipelineStatus.NoText,
                 At = DateTimeOffset.Now,
-                Frame = frame,
+                Frame = dialogueFrame,
                 Signature = signature,
                 SignatureDistance = distance,
                 Ocr = ocr,
                 SourceText = sourceText,
                 Skipped = skip == PipelineSkipReason.None ? PipelineSkipReason.TooShort : skip,
                 CaptureDuration = captureWatch.Elapsed,
-                OcrDuration = ocr.Duration,
+                OcrDuration = ocrDuration,
                 TotalDuration = iteration.Elapsed,
             });
-            _settings.Dumper?.Dump(frame, signature, ocr, sourceText, null, distance);
+            _settings.Dumper?.Dump(dialogueFrame, signature, ocr, sourceText, null, distance, speakerSource);
             return;
         }
 
@@ -454,10 +493,10 @@ public sealed class TranslationPipeline : IAsyncDisposable
         {
             if (revision != _revision || _paused)
                 return;
-            if (!_textStability.Observe(sourceText, Environment.TickCount64, _options.TextSettleMs))
+            if (!_textStability.Observe(identity, Environment.TickCount64, _options.TextSettleMs))
             {
                 // 新台词还在增长时就废弃旧请求，防止旧结果覆盖正在出现的句子。
-                if (_pendingSource is not null && !string.Equals(_pendingSource, sourceText, StringComparison.Ordinal))
+                if (_pendingSource is not null && !string.Equals(_pendingSource, identity, StringComparison.Ordinal))
                 {
                     _revision++;
                     _activeTranslation?.Cancel();
@@ -469,8 +508,10 @@ public sealed class TranslationPipeline : IAsyncDisposable
                     At = DateTimeOffset.Now,
                     Ocr = ocr,
                     SourceText = sourceText,
+                    RawSourceText = ocr.Text,
+                    SpeakerSource = speakerSource,
                     CaptureDuration = captureWatch.Elapsed,
-                    OcrDuration = ocr.Duration,
+                    OcrDuration = ocrDuration,
                     TotalDuration = iteration.Elapsed
                 });
                 return;
@@ -481,25 +522,28 @@ public sealed class TranslationPipeline : IAsyncDisposable
         // its translation is what keeps a static box from paying per poll.
         if (_pendingSource is null && _lastSourceText is not null
             && _lastTranslation is not null
-            && SameLine(_lastSourceText, sourceText))
+            && speakerSource == _lastSpeakerSource && SameLine(_lastSourceText, sourceText))
         {
             Interlocked.Increment(ref _repeats);
             Publish(new PipelineUpdate
             {
                 Status = PipelineStatus.Reused,
                 At = DateTimeOffset.Now,
-                Frame = frame,
+                Frame = dialogueFrame,
                 Signature = signature,
                 SignatureDistance = distance,
                 Ocr = ocr,
                 SourceText = sourceText,
                 Translation = _lastTranslation,
+                SpeakerSource = _lastSpeakerSource,
+                SpeakerTranslation = _lastSpeakerTranslation,
+                RawSourceText = ocr.Text,
                 FromCache = true,
                 CaptureDuration = captureWatch.Elapsed,
-                OcrDuration = ocr.Duration,
+                OcrDuration = ocrDuration,
                 TotalDuration = iteration.Elapsed,
             });
-            _settings.Dumper?.Dump(frame, signature, ocr, sourceText, _lastTranslation, distance);
+            _settings.Dumper?.Dump(dialogueFrame, signature, ocr, sourceText, _lastTranslation, distance, speakerSource, _lastSpeakerTranslation);
             return;
         }
 
@@ -507,9 +551,9 @@ public sealed class TranslationPipeline : IAsyncDisposable
         {
             if (revision != _revision || _paused)
                 return;
-            if (_failedSource == sourceText && _failedAttempts >= 3)
+            if (_failedSource == identity && _failedAttempts >= 3)
                 return;
-            if (_pendingSource is not null && SameLine(_pendingSource, sourceText))
+            if (_pendingSource is not null && SameLine(_pendingSource, identity))
                 return;
         }
         var languages = _settings.Languages();
@@ -519,9 +563,10 @@ public sealed class TranslationPipeline : IAsyncDisposable
             Text = sourceText,
             From = languages.From,
             To = languages.To,
-            Glossary = GlossarySelector.Select(sourceText, profile.Glossary),
+            Glossary = GlossarySelector.Select(speakerSource + "\n" + sourceText, profile.Glossary),
             StyleHint = profile.StyleHint,
             Worldview = profile.Worldview,
+            Speaker = speakerSource,
             // The recent lines keep pronouns and tone consistent across a conversation.
             Context = [],
         };
@@ -532,20 +577,22 @@ public sealed class TranslationPipeline : IAsyncDisposable
                 return;
             _revision++;
             _activeTranslation?.Cancel();
-            _pendingSource = sourceText;
+            _pendingSource = identity;
             _pending.Writer.TryWrite(new TranslationWork(_revision, request, new PipelineUpdate
             {
                 Status = PipelineStatus.Translating,
                 At = DateTimeOffset.Now,
-                Frame = frame,
+                Frame = dialogueFrame,
                 Signature = signature,
                 SignatureDistance = distance,
                 Ocr = ocr,
                 SourceText = sourceText,
+                RawSourceText = ocr.Text,
+                SpeakerSource = speakerSource,
                 CaptureDuration = captureWatch.Elapsed,
-                OcrDuration = ocr.Duration,
+                OcrDuration = ocrDuration,
                 Revision = _revision,
-            }));
+            }, _bypassNext));
         }
     }
 
@@ -582,10 +629,12 @@ public sealed class TranslationPipeline : IAsyncDisposable
                             Publish(work.Update with
                             {
                                 Status = PipelineStatus.Error,
-                                Error = TranslationErrors.Describe(exception) + " 同一句最多自动尝试 3 次；修改设置后可点击重新尝试。"
+                                Error = TranslationErrors.Describe(exception) + " 同一句最多自动尝试 3 次；修改设置后可点击重新翻译。",
+                                ErrorKind = TranslationErrors.Kind(exception)
                             });
-                            _failedAttempts = _failedSource == request.Text ? _failedAttempts + 1 : 1;
-                            _failedSource = request.Text;
+                            var identity = work.Update.SpeakerSource.Length == 0 ? request.Text : work.Update.SpeakerSource + "\n" + request.Text;
+                            _failedAttempts = _failedSource == identity ? _failedAttempts + 1 : 1;
+                            _failedSource = identity;
                         }
                     }
                     await SafeDelayAsync(_options.ErrorBackoffMs, cancellationToken).ConfigureAwait(false);
@@ -620,7 +669,7 @@ public sealed class TranslationPipeline : IAsyncDisposable
         string translation;
         var fromCache = false;
         IReadOnlyList<TermFix> fixes = [];
-        if (_cache.TryGet(_settings.Translator.Id, request, out var cached))
+        if (!work.BypassCache && _cache.TryGet(_settings.Translator.Id, request, out var cached))
         {
             translation = cached;
             fromCache = true;
@@ -657,6 +706,7 @@ public sealed class TranslationPipeline : IAsyncDisposable
             Interlocked.Increment(ref _translations);
         }
 
+        var speakerTranslation = await TranslateSpeakerAsync(work.Update.SpeakerSource, request, work.BypassCache, cancellationToken).ConfigureAwait(false);
         translateWatch.Stop();
         lock (_state)
         {
@@ -665,14 +715,18 @@ public sealed class TranslationPipeline : IAsyncDisposable
             _cache.Set(_settings.Translator.Id, request, translation);
             _lastSourceText = request.Text;
             _lastTranslation = translation;
+            _lastSpeakerSource = work.Update.SpeakerSource;
+            _lastSpeakerTranslation = speakerTranslation;
+            _bypassNext = false;
             _failedSource = null;
             _failedAttempts = 0;
-            Remember(request.Text, translation);
+            Remember(request.Speaker.Length == 0 ? request.Text : $"[{request.Speaker}] {request.Text}", translation);
             Publish(work.Update with
             {
                 Status = PipelineStatus.Translated,
                 At = DateTimeOffset.Now,
                 Translation = translation,
+                SpeakerTranslation = speakerTranslation,
                 TermFixes = fixes,
                 FromCache = fromCache,
                 TranslateDuration = translateWatch.Elapsed,
@@ -680,7 +734,56 @@ public sealed class TranslationPipeline : IAsyncDisposable
             });
         }
         if (work.Update.Frame is { } frame && work.Update.Signature is { } signature)
-            _settings.Dumper?.Dump(frame, signature, work.Update.Ocr!, request.Text, translation, work.Update.SignatureDistance);
+            _settings.Dumper?.Dump(frame, signature, work.Update.Ocr!, request.Text, translation, work.Update.SignatureDistance,
+                work.Update.SpeakerSource, speakerTranslation);
+    }
+
+    private Frame Prepare(Frame frame)
+    {
+        var scale = _options.OcrScale;
+        if (_settings.Recognizer is WindowsOcrRecognizer)
+            scale = Math.Min(scale, (double)WindowsOcrRecognizer.MaxImageDimension / Math.Max(frame.Width, frame.Height));
+        return ImageOps.Upscale(ImageOps.ToGrayscale(frame, _options.OcrGrayscale), scale);
+    }
+
+    private static Int32Rect Union(Int32Rect a, Int32Rect b)
+    {
+        var x = Math.Min(a.X, b.X); var y = Math.Min(a.Y, b.Y);
+        return new(x, y, Math.Max(a.X + a.Width, b.X + b.Width) - x, Math.Max(a.Y + a.Height, b.Y + b.Height) - y);
+    }
+
+    private static Frame Crop(Frame frame, Int32Rect captured, Int32Rect region) =>
+        ImageOps.Crop(frame, new(region.X - captured.X, region.Y - captured.Y, region.Width, region.Height));
+
+    private async Task<string> TranslateSpeakerAsync(string speaker, TranslationRequest dialogue, bool bypass, CancellationToken cancellation)
+    {
+        if (string.IsNullOrWhiteSpace(speaker)) return "";
+        var glossary = _settings.Profile().Glossary;
+        var translated = new List<string>();
+        foreach (var field in speaker.Split('｜', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (OcrCorrections.ExactTerm(field, glossary) is { } fixedName)
+            {
+                translated.Add(fixedName);
+                continue;
+            }
+            var request = dialogue with
+            {
+                Text = field, Speaker = "", Context = [], Glossary = GlossarySelector.Select(field, glossary),
+                StyleHint = "Translate this character name or title. Return only its translation, with no dialogue, explanation or invented title. " + dialogue.StyleHint
+            };
+            if (!bypass && _cache.TryGet(_settings.Translator.Id, request, out var cached))
+                translated.Add(cached);
+            else
+            {
+                var value = await _settings.Translator.TranslateAsync(request, cancellation).ConfigureAwait(false);
+                value = Enforce(value, request, _options, out _);
+                cancellation.ThrowIfCancellationRequested();
+                _cache.Set(_settings.Translator.Id, request, value);
+                translated.Add(value.Trim());
+            }
+        }
+        return string.Join("｜", translated);
     }
 
     /// <summary>Apply the game profile's terms to a translation.</summary>

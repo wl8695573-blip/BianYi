@@ -101,6 +101,7 @@ public sealed class LanguageBarWindow : Window
     public event Action<int, int>? DragRequested;
     public event Action? DragFinished;
     public event Action? CloseRequested;
+    public event Action? RetranslateRequested;
 
     /// <summary>Raised when a toggle is pressed: <c>edit</c>, <c>source</c>, or <c>panel</c>.</summary>
     public event Action<string>? ToggleRequested;
@@ -146,6 +147,7 @@ public sealed class LanguageBarWindow : Window
         _buttons.Children.Add(MakeToggle("edit", editing ? "编辑中" : "编辑", editing));
         _buttons.Children.Add(MakeToggle("source", "原文", showSource));
         _buttons.Children.Add(MakeToggle("panel", "翻译框", showPanel));
+        _buttons.Children.Add(MakeButton("重译", () => RetranslateRequested?.Invoke()));
         var close = MakeButton("×", () => CloseRequested?.Invoke());
         close.ToolTip = "关闭悬浮层并停止翻译";
         _buttons.Children.Add(close);

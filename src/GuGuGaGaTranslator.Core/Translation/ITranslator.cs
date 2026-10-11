@@ -16,6 +16,7 @@ public sealed record TranslationRequest
     public required string From { get; init; }
 
     public required string To { get; init; }
+    public string Speaker { get; init; } = "";
 
     public IReadOnlyList<GlossaryEntry> Glossary { get; init; } = [];
 

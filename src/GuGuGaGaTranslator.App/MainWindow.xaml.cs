@@ -576,8 +576,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        OcrEngineSummary.Text = "当前:Windows 自带识别器。必须为画面上的文字语言安装对应的「光学字符识别」功能,"
-            + "否则识别不可用或读成乱码;英文/简体中文在中文版 Windows 上通常已自带。";
+        OcrEngineSummary.Text = "Windows OCR 使用所选文字语言；缺少该语言包时使用内置四语模型。"
+            + "统计栏显示运行中的实际识别器。日语推荐直接使用内置模型。";
     }
 
     private void LoadConfigIntoUi()
@@ -791,6 +791,7 @@ public partial class MainWindow : Window
 
     private void UpdateTargetSummary()
     {
+        UpdateSpeakerSummary();
         UpdateRunSummary();
         var target = WindowList.SelectedItem as WindowInfo;
         var region = _session.Config.Target.Region;
@@ -822,7 +823,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Frame a region for a target and translate it; shared by the button and the hotkey.</summary>
-    private void PickRegionFor(WindowInfo target)
+    private void PickRegionFor(WindowInfo target, bool speaker = false)
     {
         // 和微信截图一样:框选时把自己的窗口收起来,免得控制窗口、翻译框和语言条压在要框的东西上。
         // 关掉这个选项时什么也不藏,方便对照着原来的界面框。
@@ -850,9 +851,16 @@ public partial class MainWindow : Window
             return;
         }
 
-        _session.SetRegion(target, region.Value);
+        if (speaker) _session.SetSpeakerRegion(target, region.Value);
+        else _session.SetRegion(target, region.Value);
         _session.SaveConfig();
         UpdateTargetSummary();
+        UpdateSpeakerSummary();
+        if (speaker)
+        {
+            OnNotice("已保存称号／姓名区。最后一行作为姓名，其余行作为称号；正文请单独框选。");
+            return;
+        }
 
         // Keep the current pipeline running when only the selected region changes.
         if (!_session.IsRunning)
@@ -945,6 +953,8 @@ public partial class MainWindow : Window
         _overlay.ProfileRequested += OnProfilesRequested;
         _overlay.DismissRequested -= OnOverlayDismissRequested;
         _overlay.DismissRequested += OnOverlayDismissRequested;
+        _overlay.RetranslateRequested -= OnOverlayRetranslate;
+        _overlay.RetranslateRequested += OnOverlayRetranslate;
         _overlay.Configure(_session.Config.Overlay, _session.Languages);
         _overlay.SetProfile(_session.ActiveProfile?.Name);
         _session.Start();
@@ -982,6 +992,7 @@ public partial class MainWindow : Window
     }
 
     private void OnOverlayDismissRequested() => _ = StopAsync();
+    private void OnOverlayRetranslate() => OnRetryCurrent(this, new RoutedEventArgs());
 
     private async void OnSave(object sender, RoutedEventArgs e) => await SaveSettingsAsync();
 
@@ -1112,6 +1123,17 @@ public partial class MainWindow : Window
         if (client.Width < 80 || client.Height < 80)
         {
             OnNotice("这个窗口的客户区太小,没法自动设区域,请手动框选。");
+            return;
+        }
+
+        if (target.ProcessName.Equals("LimbusCompany", StringComparison.OrdinalIgnoreCase))
+        {
+            _session.SetRegion(target, new Int32Rect(client.X + (int)(client.Width * .19), client.Y + (int)(client.Height * .79),
+                (int)(client.Width * .75), (int)(client.Height * .16)), manual: false);
+            _session.SetSpeakerRegion(target, new Int32Rect(client.X, client.Y + (int)(client.Height * .72),
+                (int)(client.Width * .18), (int)(client.Height * .14)));
+            _session.SaveConfig(); UpdateTargetSummary();
+            OnNotice("已按边狱巴士布局分别设置正文与称号／姓名区域；如位置不同，请分别手动框选。");
             return;
         }
 
@@ -1544,8 +1566,10 @@ public partial class MainWindow : Window
     private void OnTermFeedback(object sender, RoutedEventArgs e) => OpenExternal("https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml", "术语反馈表单");
     private void OnRetryCurrent(object sender, RoutedEventArgs e)
     {
-        _session.ForgetContext();
-        OnNotice("已清理上下文并重新识别当前句；若设置有改动，请先保存配置。");
+        if (_session.Pipeline is not { IsRunning: true } pipeline)
+        { OnNotice("请先开始翻译，再重新翻译当前句。"); return; }
+        pipeline.RetranslateCurrent();
+        OnNotice("正在重新识别并翻译当前句，本次跳过缓存；设置变动请先保存。");
     }
 
     /// <summary>Start the loop as if the button had been pressed, for the <c>--autostart</c> command line.</summary>
@@ -1741,22 +1765,23 @@ public partial class MainWindow : Window
             if (pipeline is null || !ReferenceEquals(pipeline, _session.Pipeline) || !pipeline.IsCurrent(update))
                 return;
             StatusText.Text = Describe(update);
+            _overlay?.SetStatus(Describe(update));
 
             if (update.Ocr is not null)
-                SourceBox.Text = update.SourceText;
+                SourceBox.Text = (update.SpeakerSource.Length > 0 ? "称号／姓名：" + update.SpeakerSource + "\n正文：\n" : "") + update.SourceText;
 
             if (update.Status is PipelineStatus.NoText or PipelineStatus.Blank or PipelineStatus.NoRegion)
             {
                 TranslationBox.Clear();
                 _overlay?.ClearText();
-                if (update.Status == PipelineStatus.NoText)
+                if (update.Status == PipelineStatus.NoText && update.SourceText.Length == 0)
                     SourceBox.Text = "(未识别到文字)";
                 return;
             }
 
             if (update.Translation is null)
             {
-                if (update.Status is PipelineStatus.Translating or PipelineStatus.WaitingText)
+                if (update.Status is PipelineStatus.Translating or PipelineStatus.WaitingText or PipelineStatus.Error)
                 {
                     TranslationBox.Clear();
                     _overlay?.ClearText();
@@ -1764,11 +1789,11 @@ public partial class MainWindow : Window
                 return;
             }
 
-            TranslationBox.Text = update.Translation;
+            TranslationBox.Text = (update.SpeakerTranslation.Length > 0 ? update.SpeakerTranslation + "\n" : "") + update.Translation;
 
             var region = _session.ResolveRegion();
             if (region is { } rect)
-                _overlay?.ShowTranslated(update.SourceText, update.Translation, rect);
+                _overlay?.ShowTranslated(update.SourceText, update.Translation, rect, update.SpeakerTranslation);
 
             var stats = _session.Pipeline?.Stats;
             if (stats is not null)
@@ -1777,19 +1802,20 @@ public partial class MainWindow : Window
                     + $" · 缓存 {stats.CacheHits} · 去重 {stats.RepeatedLines} · 错误 {stats.Errors}"
                     + $" · 用时 捕获 {update.CaptureDuration.TotalMilliseconds:F0}ms"
                     + $" / 识别 {update.OcrDuration.TotalMilliseconds:F0}ms"
-                    + $" / 翻译 {update.TranslateDuration.TotalMilliseconds:F0}ms";
+                    + $" / 翻译 {update.TranslateDuration.TotalMilliseconds:F0}ms"
+                    + $" · OCR {_session.Recognizer?.Id}";
             }
         }));
     }
 
     private static string Describe(PipelineUpdate update) => update.Status switch
     {
+        PipelineStatus.Recognizing => "正在识别…",
         PipelineStatus.NoRegion => "没有可用的区域:目标窗口可能已关闭或最小化。",
         PipelineStatus.Unchanged => "画面未变化,跳过识别。",
         PipelineStatus.WaitingText => "文字正在变化，等待完整台词…",
         PipelineStatus.NoText => update.Skipped == PipelineSkipReason.WrongScript
-            ? $"识别到的是界面文字(「{update.SourceText}」),不像台词,已跳过 —— 这块区域可能压到了游戏的按钮。"
-                + "用 Ctrl+Alt+R 把区域收紧到对话框上,或在「调试」页关掉脚本守卫。"
+            ? "识别结果不含所选原文语言的字符。请核对 OCR 引擎、游戏文字语言和正文选区。"
             : $"未识别到文字(变化格数 {update.SignatureDistance})。",
         PipelineStatus.Translating => "翻译中…(译文会边生成边显示)",
         PipelineStatus.Blank => "捕获到的是纯色画面 —— 说明问题在抓屏,不在识别:"

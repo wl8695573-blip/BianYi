@@ -20,9 +20,9 @@
       <RowDefinition Height="34" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
-    <Border Grid.RowSpan="2" BorderBrush="{StaticResource AccentBrush}" BorderThickness="2"
+    <Border Grid.RowSpan="2" BorderBrush="{StaticResource AccentBrush}" BorderThickness="4"
             Background="{StaticResource WindowBackgroundBrush}" IsHitTestVisible="False" />
-    <Grid Margin="14,2,6,0">
+    <Grid Margin="14,4,8,0">
       <TextBlock Text="LCTA · 边狱巴士翻译助手" VerticalAlignment="Center" FontSize="12"
                  Foreground="{StaticResource MutedTextBrush}" IsHitTestVisible="False" />
       <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
@@ -92,8 +92,14 @@
                  TextWrapping="Wrap" Text="尚未选择窗口" />
       <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,6,0,4">
         <Button x:Name="RefreshButton" Content="刷新列表" Click="OnRefreshWindows" />
-        <Button x:Name="RegionButton" Content="框选区域" Click="OnPickRegion" />
+        <Button x:Name="RegionButton" Content="框选正文" Click="OnPickRegion" />
       </UniformGrid>
+      <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,0,0,4">
+        <Button Content="框选称号／姓名" Click="OnPickSpeaker" ToolTip="仅框住称号和姓名：最后一行作为姓名，其余行作为称号" />
+        <Button Content="清除称号／姓名" Click="OnClearSpeaker" />
+      </UniformGrid>
+      <TextBlock x:Name="SpeakerRegionSummary" DockPanel.Dock="Top" Text="称号／姓名：未设置（可选）"
+                 TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,4" />
       <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,0,0,8">
         <Button x:Name="BottomStripButton" Content="底部字幕 ▾" Click="OnBottomOptions"
                 ToolTip="选择手动框选或自动预设。手动选区会保存并用于后续翻译" />
@@ -140,7 +146,7 @@
             <Button x:Name="PauseButton" Content="暂停" Click="OnPause" />
             <Button x:Name="StopButton" Content="停止" Click="OnStop" />
             <Button x:Name="SaveButton" Content="保存配置" Click="OnSave" />
-            <Button Content="重新尝试" Click="OnRetryCurrent" MinWidth="76" />
+            <Button Content="重新翻译" Click="OnRetryCurrent" MinWidth="76" ToolTip="重新识别当前区域，跳过该句缓存并生成新译文" />
           </WrapPanel>
 
           <TextBlock Grid.Row="2" x:Name="StatusText" Text="就绪" Margin="0,10,0,0"
@@ -179,7 +185,9 @@
             <TextBlock Text="识别语言" Style="{StaticResource FieldLabel}" />
             <ComboBox x:Name="OcrLanguageCombo" />
             <TextBlock Style="{StaticResource HintText}"
-                       Text="原文为韩语时选择韩语模型；自动识别会比较通用与韩语模型，耗时更长。Windows OCR 需要对应系统语言包。" />
+                       Text="选择游戏文字的语言。Windows 缺少该语言 OCR 时使用内置模型，不再改用其他语言；日语推荐内置四语模型。" />
+            <Button Content="管理 OCR 纠错规则…" Click="OnEditOcrCorrections" HorizontalAlignment="Left" />
+            <TextBlock Style="{StaticResource HintText}" Text="规则按游戏、语言和字段生效。称号／姓名的错字不会替换正文中的普通单词。" />
             <UniformGrid Columns="2">
               <StackPanel Margin="0,0,6,0">
                 <TextBlock Style="{StaticResource FieldLabel}"
@@ -202,7 +210,7 @@
             <UniformGrid Columns="2">
               <StackPanel Margin="0,0,6,0">
                 <TextBlock Style="{StaticResource FieldLabel}"
-                           Text="短边目标（数值越小，检测越快）" />
+                           Text="短边目标（建议 640；320 更快）" />
                 <TextBox x:Name="RapidLimitSideBox" />
               </StackPanel>
               <StackPanel Margin="6,0,0,0">

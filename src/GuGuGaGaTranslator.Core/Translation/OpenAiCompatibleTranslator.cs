@@ -179,7 +179,10 @@ public sealed class OpenAiCompatibleTranslator : ITranslator, IStreamingTranslat
         // The general style keeps the instructions in the system prompt and puts the running script in front of the
         // line, which is what stops a chat model from resolving pronouns sentence by sentence.
         var context = BuildContextBlock(request.Context);
-        return context.Length == 0 ? request.Text.Trim() : $"{context}\n\n{request.Text.Trim()}";
+        var speaker = string.IsNullOrWhiteSpace(request.Speaker) ? "" :
+            $"Speaker metadata (title/name; context only, do not include in the translated dialogue): {request.Speaker}\nDialogue:\n";
+        var text = speaker + request.Text.Trim();
+        return context.Length == 0 ? text : $"{context}\n\n{text}";
     }
 
     /// <summary>Sakura-GalTransl 模型卡规定的系统提示。</summary>

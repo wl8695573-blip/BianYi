@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using GuGuGaGaTranslator.Core.Config;
 using GuGuGaGaTranslator.Core.Pipeline;
+using GuGuGaGaTranslator.Core.Translation;
 
 namespace GuGuGaGaTranslator.Core.Diagnostics;
 
@@ -23,6 +24,7 @@ public sealed record DiagnosticEvent
     public double OcrMs { get; init; }
     public double TranslateMs { get; init; }
     public bool FromCache { get; init; }
+    public TranslationErrorKind? ErrorKind { get; init; }
 }
 
 /// <summary>Rotating, content-free diagnostics with a whitelist-based ZIP export.</summary>
@@ -70,7 +72,7 @@ public sealed class DiagnosticsService
 
     public void Record(PipelineUpdate update)
     {
-        if (update.Status == PipelineStatus.Translating)
+        if (update.Status is PipelineStatus.Translating or PipelineStatus.Recognizing)
             return;
         lock (_gate)
         {
@@ -90,6 +92,7 @@ public sealed class DiagnosticsService
                 OcrMs = SafeDuration(update.OcrDuration.TotalMilliseconds),
                 TranslateMs = SafeDuration(update.TranslateDuration.TotalMilliseconds),
                 FromCache = update.FromCache,
+                ErrorKind = update.ErrorKind,
             });
         }
     }

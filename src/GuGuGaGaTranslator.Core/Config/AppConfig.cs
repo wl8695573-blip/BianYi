@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using System.Windows;
 using GuGuGaGaTranslator.Core.Translation;
+using GuGuGaGaTranslator.Core.Ocr;
 
 namespace GuGuGaGaTranslator.Core.Config;
 
@@ -19,6 +20,9 @@ public readonly record struct RegionRect(int X, int Y, int Width, int Height)
 /// <summary>Which window to read, and which part of it.</summary>
 public sealed class TargetConfig
 {
+    public RegionRect? SpeakerRegion { get; set; }
+    public int SpeakerReferenceWidth { get; set; }
+    public int SpeakerReferenceHeight { get; set; }
     /// <summary>窗口标识 process|class，用于窗口重启后的匹配。</summary>
     public string? Identity { get; set; }
 
@@ -45,6 +49,9 @@ public sealed class TargetConfig
 /// <summary>目标的阅读设置，不包含服务密钥。按进程和窗口类保存，跨启动继续使用。</summary>
 public sealed class SavedTargetConfig
 {
+    public RegionRect? SpeakerRegion { get; set; }
+    public int SpeakerReferenceWidth { get; set; }
+    public int SpeakerReferenceHeight { get; set; }
     public string Identity { get; set; } = "";
     public RegionRect? Region { get; set; }
     public int ReferenceClientWidth { get; set; }
@@ -62,6 +69,7 @@ public sealed class SavedTargetConfig
 /// <summary>How images are prepared and read.</summary>
 public sealed class OcrConfig
 {
+    public List<OcrCorrection> Corrections { get; set; } = OcrCorrections.Defaults();
     /// <summary>Which backend: <c>windows</c> for the in-box recognizer (needs the language's OCR feature), <c>rapidocr</c> for the bundled model.</summary>
     public string Engine { get; set; } = "rapidocr";
 
@@ -81,7 +89,7 @@ public sealed class OcrConfig
     public string RapidModelDirectory { get; set; } = string.Empty;
 
     /// <summary>RapidOCR 检测尺寸；0 使用模型默认值，减小尺寸可降低处理量。</summary>
-    public int RapidLimitSideLen { get; set; } = 320;
+    public int RapidLimitSideLen { get; set; } = 640;
 
     /// <summary>Whether RapidOCR should try the CUDA provider before falling back to CPU.</summary>
     public bool RapidUseGpu { get; set; }
@@ -438,6 +446,10 @@ public sealed class AppConfig
         FloatingBall ??= new();
         Updates ??= new();
         Ocr ??= new();
+        Ocr.Corrections ??= OcrCorrections.Defaults();
+        Ocr.Corrections = Ocr.Corrections.Where(r => r is not null && r.Wrong is { Length: > 0 and <= 200 }
+            && r.Correct is { Length: > 0 and <= 200 } && r.Field is "speaker" or "body"
+            && DefaultLanguagePresets.IsSupported(r.Language, false) && r.Profile is not null).Take(500).ToList();
         Translation ??= new();
         Overlay ??= new();
         RegionPicker ??= new();

@@ -293,11 +293,33 @@ internal static partial class Program
         try
         {
             overlay.Configure(config, new LanguagePair("en", "zh-Hans"));
+            var dragSurface = Field<Thumb>(overlay,"_dragSurface");
+            dragSurface.ApplyTemplate();
+            Check(VisualTreeHelper.GetChild(dragSurface,0) is Border transparentDrag
+                && transparentDrag.Background is SolidColorBrush dragBrush && dragBrush.Color.A == 0,
+                "overlay drag surface stays transparent in edit mode");
             Check(Field<LanguageBarWindow?>(overlay, "_bar") is null, "configuration does not open an orphan control bar");
             overlay.Open();
             overlay.ShowTranslated("Example source", "测试译文", new Int32Rect(250, 200, 420, 90));
+            overlay.ShowTranslated("Body only", "正文译文", new Int32Rect(250,200,420,90), "食指｜里恩");
+            Check(Field<TextBlock>(overlay, "_speakerText").Text == "食指｜里恩"
+                && Field<TextBlock>(overlay,"_speakerText").FontSize < Field<TextBlock>(overlay,"_translationText").FontSize,
+                "speaker translated separately with smaller text");
+            config.MaxLines = 1;
+            overlay.ShowTranslated("Body", "第一行\n第二行\n第三行", new Int32Rect(250,200,420,90), "称号｜姓名");
+            Check(Field<TextBlock>(overlay,"_translationText").Text.Contains("第三行"), "overlay retains complete body despite legacy max-lines setting");
+            overlay.ClearText();
+            Check(Field<TextBlock>(overlay,"_speakerText").Visibility == Visibility.Collapsed, "clear hides speaker from previous scene");
+            overlay.SetStatus("连接失败：请检查网络");
+            Check(Field<TextBlock>(overlay,"_statusText").Text.Contains("连接失败"), "overlay displays processing and error status");
+            overlay.ShowTranslated("Source","测试译文",new Int32Rect(250,200,420,90));
             Pump();
             var bar = Field<LanguageBarWindow>(overlay, "_bar");
+            var retranslated = 0;
+            overlay.RetranslateRequested += () => retranslated++;
+            var retryButtons = Field<StackPanel>(bar,"_buttons");
+            Click(retryButtons.Children.OfType<Border>().Single(b => (b.Child as TextBlock)?.Text == "重译"));
+            Check(retranslated == 1, "overlay retranslate forwards one request");
             WindowEnumerator.TryReadFrameRect(new WindowInteropHelper(overlay).Handle, out var before);
             var handle = Field<Thumb>(bar, "_dragHandle");
             handle.RaiseEvent(new DragDeltaEventArgs(30, 20) { RoutedEvent = Thumb.DragDeltaEvent });

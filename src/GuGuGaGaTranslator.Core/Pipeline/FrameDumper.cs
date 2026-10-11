@@ -45,7 +45,9 @@ public sealed class FrameDumper
         OcrResult? ocr,
         string sourceText,
         string? translation,
-        int signatureDistance)
+        int signatureDistance,
+        string speakerSource = "",
+        string speakerTranslation = "")
     {
         lock (_gate)
         {
@@ -85,6 +87,8 @@ public sealed class FrameDumper
                     recognizer = ocr.RecognizerId,
                     language = ocr.LanguageTag,
                     durationMs = Math.Round(ocr.Duration.TotalMilliseconds, 1),
+                    sourceWidth = ocr.SourceWidth,
+                    sourceHeight = ocr.SourceHeight,
                     lineCount = ocr.Lines.Count,
                     text = ocr.Text,
                     lines = ocr.Lines.Select(line => new
@@ -101,6 +105,8 @@ public sealed class FrameDumper
                 },
                 sourceText,
                 translation,
+                speakerSource,
+                speakerTranslation,
                 png = baseName + ".png",
             };
 

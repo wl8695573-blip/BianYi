@@ -18,6 +18,8 @@ public sealed class OverlayWindow : Window
     private const int GripSize = 14;
 
     private readonly TextBlock _sourceText = new();
+    private readonly TextBlock _speakerText = new() { TextWrapping = TextWrapping.Wrap, Visibility = Visibility.Collapsed, Margin = new Thickness(0,0,0,6) };
+    private readonly TextBlock _statusText = new() { TextWrapping = TextWrapping.Wrap, FontSize = 11, Margin = new Thickness(0,8,0,0) };
     private readonly TextBlock _translationText = new();
     private readonly StackPanel _stack = new();
     private readonly Border _panel;
@@ -78,8 +80,12 @@ public sealed class OverlayWindow : Window
         _translationText.TextWrapping = TextWrapping.Wrap;
         _translationText.LineHeight = 34;
 
+        _speakerText.Foreground = Theme.Brush("AccentBrush", Colors.Orange);
+        _statusText.Foreground = Theme.Brush("MutedTextBrush", Colors.LightGray);
+        _stack.Children.Add(_speakerText);
         _stack.Children.Add(_sourceText);
         _stack.Children.Add(_translationText);
+        _stack.Children.Add(_statusText);
         _scroll.Content = _stack;
 
         _panel = new Border
@@ -105,6 +111,7 @@ public sealed class OverlayWindow : Window
         PositionGrip(_grips[3].Grip, HorizontalAlignment.Right, VerticalAlignment.Bottom);
 
         _dragSurface.DragDelta += OnDragMove;
+        _dragSurface.Template = ThumbTemplate();
         foreach (var grip in _grips)
             grip.Grip.DragDelta += OnDragResize;
         foreach (var grip in _grips)
@@ -139,6 +146,7 @@ public sealed class OverlayWindow : Window
 
     public event Action? ProfileRequested;
     public event Action? DismissRequested;
+    public event Action? RetranslateRequested;
 
     public void Open() => _dismissed = false;
 
@@ -157,7 +165,15 @@ public sealed class OverlayWindow : Window
         Visibility = Visibility.Collapsed,
         Background = Theme.Brush("AccentBrush", Color.FromRgb(0x6E, 0x8B, 0xD6)),
         Opacity = 0.85,
+        Template = ThumbTemplate(),
     };
+
+    private static ControlTemplate ThumbTemplate()
+    {
+        var border = new FrameworkElementFactory(typeof(Border));
+        border.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
+        return new ControlTemplate(typeof(Thumb)) { VisualTree = border };
+    }
 
     private static void PositionGrip(Thumb grip, HorizontalAlignment horizontal, VerticalAlignment vertical)
     {
@@ -177,6 +193,7 @@ public sealed class OverlayWindow : Window
         _languages = languages;
         _translationText.FontSize = Math.Clamp(config.FontSize, 8, 96);
         _translationText.LineHeight = _translationText.FontSize * 1.4;
+        _speakerText.FontSize = Math.Max(12, _translationText.FontSize * 0.65);
         _sourceText.FontSize = Math.Max(10, _translationText.FontSize * 0.58);
         _sourceText.Visibility = config.ShowSource ? Visibility.Visible : Visibility.Collapsed;
 
@@ -327,6 +344,7 @@ public sealed class OverlayWindow : Window
             _bar.MoreRequested += () => DirectionsRequested?.Invoke();
             _bar.ToggleRequested += key => ToggleRequested?.Invoke(key);
             _bar.ProfileRequested += () => ProfileRequested?.Invoke();
+            _bar.RetranslateRequested += () => RetranslateRequested?.Invoke();
             _bar.DragRequested += MoveBy;
             _bar.DragFinished += () => LayoutChanged?.Invoke();
             _bar.CloseRequested += () =>
@@ -362,16 +380,14 @@ public sealed class OverlayWindow : Window
     }
 
     /// <summary>Show a translation anchored to a screen region (<paramref name="region"/> in physical pixels), placed as configured.</summary>
-    public void ShowTranslated(string source, string translation, Int32Rect region)
+    public void ShowTranslated(string source, string translation, Int32Rect region, string speaker = "")
     {
         _region = region;
         _sourceText.Text = source;
+        _speakerText.Text = speaker;
+        _speakerText.Visibility = string.IsNullOrWhiteSpace(speaker) ? Visibility.Collapsed : Visibility.Visible;
 
-        var lines = translation.Split('\n');
-        var maxLines = _config.MaxLines;
-        _translationText.Text = maxLines <= 0 || lines.Length <= maxLines
-            ? translation
-            : string.Join('\n', lines.Take(maxLines)) + " …";
+        _translationText.Text = translation;
 
         PlaceAt(region);
         // 框选期间保持隐藏:这时循环还在跑,新译文照样算,但面板不能弹回屏幕挡住要框的东西。
@@ -457,8 +473,16 @@ public sealed class OverlayWindow : Window
 
     public void ClearText()
     {
+        _speakerText.Text = "";
+        _speakerText.Visibility = Visibility.Collapsed;
         _translationText.Text = string.Empty;
         _sourceText.Text = string.Empty;
+    }
+
+    public void SetStatus(string status)
+    {
+        _statusText.Text = status;
+        if (_region.Width > 0 && IsVisible) PlaceAt(_region);
     }
 
     protected override void OnSourceInitialized(EventArgs e)

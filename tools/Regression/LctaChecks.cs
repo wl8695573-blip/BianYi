@@ -1,4 +1,5 @@
 using System.IO;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http;
 using System.Windows;
@@ -8,6 +9,8 @@ using GuGuGaGaTranslator.Core.Config;
 using GuGuGaGaTranslator.Core.Pipeline;
 using GuGuGaGaTranslator.Core.Text;
 using GuGuGaGaTranslator.Core.Translation;
+using GuGuGaGaTranslator.Core.Ocr;
+using GuGuGaGaTranslator.Ocr.Rapid;
 
 internal static class LctaChecks
 {
@@ -81,6 +84,97 @@ internal static class LctaChecks
 
         await TypewriterAsync();
         await RetryLimitAsync();
+        await SplitRegionsAsync(scratch);
+    }
+
+    private static async Task SplitRegionsAsync(string scratch)
+    {
+        var rules = OcrCorrections.Defaults();
+        Program.Check(OcrCorrections.Apply("Ähe Index tiursefather_", "en", "limbus-company", "speaker", rules) == "The Index Nursefather", "LCTA: scoped OCR speaker correction");
+        Program.Check(OcrCorrections.Apply("tiursefather", "en", "limbus-company", "body", rules) == "tiursefather", "LCTA: speaker correction never touches body");
+        Program.Check(OcrCorrections.Apply("pretiursefatherpost", "en", "limbus-company", "speaker", rules) == "pretiursefatherpost", "LCTA: correction preserves word boundaries");
+        Program.Check(OcrCorrections.Apply("tiursefather", "ja", "limbus-company", "speaker", rules) == "tiursefather", "LCTA: correction preserves language");
+        Program.Check(OcrCorrections.Apply("tiursefather", "en", "other", "speaker", rules) == "tiursefather", "LCTA: correction preserves profile");
+        var session = new AppSession(Path.Combine(scratch, "split-region"));
+        session.LoadConfig();
+        var window = Window("LimbusCompany", "LimbusCompany");
+        session.SetRegion(window, new(200, 450, 500, 60));
+        session.SetSpeakerRegion(window, new(10, 400, 150, 70));
+        session.SaveConfig();
+        session.SetTarget(Window("browser", "Browser"));
+        Program.Check(session.Config.Target.SpeakerRegion is null, "LCTA: independent speaker area per target");
+        session.SetTarget(window);
+        Program.Check(session.Config.Target.SpeakerRegion == new RegionRect(10,400,150,70) && session.Config.Target.Region == new RegionRect(200,450,500,60), "LCTA: restores both regions per target");
+        await session.DisposeAsync();
+
+        var recognizer = new SplitRecognizer();
+        var translator = new CountingTranslator();
+        using var cache = new TranslationCache();
+        var language = "en";
+        await using var pipeline = new TranslationPipeline(new()
+        {
+            RegionProvider = () => new(40,0,32,32), SpeakerRegionProvider = () => new(0,0,16,32),
+            Capture = r => new() { Bgra = new byte[r.Width*r.Height*4], Width=r.Width, Height=r.Height, SourceRegion=r, CapturedAt=DateTimeOffset.Now },
+            Recognizer = recognizer, Translator=translator, Languages=()=>new(language,"zh-Hans"), Cache=cache,
+            Profile = () => new([new("The Index", "食指"), new("Rien", "里恩")]),
+            Options=new() { OcrScale=1, PollIntervalMs=15, ForceRefreshMs=0, TextSettleMs=0, MaskOwnWindows=false }
+        });
+        var updates = new ConcurrentQueue<PipelineUpdate>();
+        pipeline.Updated += u => { if (u.Status == PipelineStatus.Translated) updates.Enqueue(u); };
+        pipeline.Start();
+        async Task<PipelineUpdate> Next()
+        {
+            var end=Environment.TickCount64+4000;
+            while(Environment.TickCount64<end) { if(updates.TryDequeue(out var u)) return u; await Task.Delay(15); }
+            throw new TimeoutException("split pipeline result");
+        }
+        var first=await Next();
+        Program.Check(first.SourceText == "Hello there." && first.SpeakerSource == "The Index｜Rien" && first.SpeakerTranslation == "食指｜里恩", "LCTA: speaker and body stay separate");
+        Program.Check(translator.Calls == 1 && translator.LastText == "Hello there.", "LCTA: exact speaker glossary needs no API call");
+        pipeline.InvalidateTranslation();
+        var cached=await Next();
+        Program.Check(cached.FromCache && translator.Calls==1, "LCTA: cached dialogue with speaker metadata");
+        pipeline.RetranslateCurrent();
+        var fresh=await Next();
+        Program.Check(!fresh.FromCache && translator.Calls==2, "LCTA: retranslate bypasses cached result");
+        recognizer.Name="Other";
+        var changed=await Next();
+        Program.Check(changed.SpeakerSource=="The Index｜Other" && translator.Calls>=3, "LCTA: same body with changed speaker is a new result");
+        recognizer.Text="はい";
+        language="ja";
+        pipeline.InvalidateTranslation();
+        var shortLine=await Next();
+        Program.Check(shortLine.SourceText=="はい", "LCTA: split Japanese dialogue permits two-character replies");
+        await pipeline.StopAsync();
+        Program.Check(TranslationErrors.Kind(new HttpRequestException("",null,HttpStatusCode.Unauthorized)) == TranslationErrorKind.Authentication, "LCTA: auth error category");
+        Program.Check(TranslationErrors.Kind(new HttpRequestException("",null,HttpStatusCode.PaymentRequired)) == TranslationErrorKind.Balance, "LCTA: balance error category");
+        Program.Check(TranslationErrors.Kind(new HttpRequestException("",null,HttpStatusCode.TooManyRequests)) == TranslationErrorKind.RateLimit, "LCTA: 429 is not presumed balance failure");
+        if (!WindowsOcrRecognizer.AvailableLanguages.Any(tag=>tag.StartsWith("ja",StringComparison.OrdinalIgnoreCase)))
+        {
+            await using var missing = new AppSession(Path.Combine(scratch,"missing-japanese"));
+            missing.LoadConfig();
+            missing.Config.Target.Region = new(0,0,32,32);
+            missing.Config.Ocr.Engine="windows"; missing.Config.Ocr.Language="ja";
+            missing.Config.Ocr.RapidModelDirectory=Path.GetFullPath("models/v6");
+            missing.Start();
+            Program.Check(missing.Recognizer is FourLanguageRecognizer, "LCTA: missing Japanese Windows OCR uses bundled model rather than English");
+            await missing.StopAsync();
+        }
+        var prompts=OpenAiCompatibleTranslator.PreviewPrompts(new TranslationRequest {Text="Hello", From="en",To="zh-Hans",Speaker="Title｜Name"},PromptStyle.Galgame);
+        Program.Check(prompts.User.Contains("context only") && prompts.User.Contains("Dialogue:"), "LCTA: prompt distinguishes speaker metadata from dialogue");
+    }
+
+    private sealed class SplitRecognizer : ITextRecognizer
+    {
+        public string Id=>"split-test";
+        public string LanguageTag=>"en-US";
+        public volatile string Name="Rien";
+        public volatile string Text="Hello there.";
+        public Task<OcrResult> RecognizeAsync(Frame frame, CancellationToken cancellationToken=default) => Task.FromResult(new OcrResult
+        {
+            Lines= (frame.Width==16 ? new[]{"The Index",Name} : new[]{Text}).Select(s=>new OcrLine(s,new(0,0,10,8),[])).ToArray(),
+            RecognizerId=Id, LanguageTag=LanguageTag, SourceWidth=frame.Width, SourceHeight=frame.Height, Duration=TimeSpan.Zero
+        });
     }
 
     private static WindowInfo Window(string process, string title) => new()
