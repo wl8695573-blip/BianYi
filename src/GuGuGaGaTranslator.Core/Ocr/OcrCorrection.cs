@@ -11,6 +11,7 @@ public sealed class OcrCorrection
     public string Field { get; set; } = "speaker";
     public string Wrong { get; set; } = "";
     public string Correct { get; set; } = "";
+    public bool WholeField { get; set; }
 }
 
 public static class OcrCorrections
@@ -20,16 +21,23 @@ public static class OcrCorrections
         new() { Wrong = "Ähe Index", Correct = "The Index" },
         new() { Wrong = "tiursefather_", Correct = "Nursefather" },
         new() { Wrong = "tiursefather", Correct = "Nursefather" },
-        new() { Wrong = "Nursefathel", Correct = "Nursefather" }
+        new() { Wrong = "Nursefathel", Correct = "Nursefather" },
+        DanteNameRule()
     ];
+
+    public static OcrCorrection DanteNameRule() => new()
+    { Language = "ja", Profile = "limbus-company", Field = "name", Wrong = "グンテ", Correct = "ダンテ", WholeField = true };
 
     public static string Apply(string text, string language, string profile, string field, IEnumerable<OcrCorrection> rules)
     {
         text = text.Normalize(NormalizationForm.FormKC);
         foreach (var rule in rules.Where(r => r.Language.Equals(language, StringComparison.OrdinalIgnoreCase)
-                     && r.Profile.Equals(profile, StringComparison.OrdinalIgnoreCase) && r.Field == field
+                     && r.Profile.Equals(profile, StringComparison.OrdinalIgnoreCase)
+                     && (r.Field == field || (r.Field == "speaker" && field is "title" or "name"))
                      && !string.IsNullOrWhiteSpace(r.Wrong) && !string.IsNullOrWhiteSpace(r.Correct)))
         {
+            if (rule.WholeField && !text.Trim().Equals(rule.Wrong.Normalize(NormalizationForm.FormKC), StringComparison.OrdinalIgnoreCase))
+                continue;
             var pattern = Regex.Escape(rule.Wrong.Normalize(NormalizationForm.FormKC));
             // 拉丁词必须完整匹配，不能改动普通单词内部。
             if (rule.Wrong.Any(c => c is >= 'A' and <= 'Z' or >= 'a' and <= 'z'))
@@ -43,7 +51,8 @@ public static class OcrCorrections
     public static string Speaker(OcrResult result, string language)
     {
         var lines = result.Lines.Select(l => l.Text.Trim()).Where(s => s.Length > 0).ToArray();
-        if (lines.Length <= 1) return string.Join("", lines);
+        if (lines.Length <= 1)
+            return string.Join("", lines);
         var separator = language.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? " " : "";
         return string.Join(separator, lines[..^1]) + "｜" + lines[^1];
     }

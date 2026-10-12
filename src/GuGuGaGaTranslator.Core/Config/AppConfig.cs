@@ -20,6 +20,12 @@ public readonly record struct RegionRect(int X, int Y, int Width, int Height)
 /// <summary>Which window to read, and which part of it.</summary>
 public sealed class TargetConfig
 {
+    public RegionRect? TitleRegion { get; set; }
+    public int TitleReferenceWidth { get; set; }
+    public int TitleReferenceHeight { get; set; }
+    public RegionRect? NameRegion { get; set; }
+    public int NameReferenceWidth { get; set; }
+    public int NameReferenceHeight { get; set; }
     public RegionRect? SpeakerRegion { get; set; }
     public int SpeakerReferenceWidth { get; set; }
     public int SpeakerReferenceHeight { get; set; }
@@ -49,6 +55,12 @@ public sealed class TargetConfig
 /// <summary>目标的阅读设置，不包含服务密钥。按进程和窗口类保存，跨启动继续使用。</summary>
 public sealed class SavedTargetConfig
 {
+    public RegionRect? TitleRegion { get; set; }
+    public int TitleReferenceWidth { get; set; }
+    public int TitleReferenceHeight { get; set; }
+    public RegionRect? NameRegion { get; set; }
+    public int NameReferenceWidth { get; set; }
+    public int NameReferenceHeight { get; set; }
     public RegionRect? SpeakerRegion { get; set; }
     public int SpeakerReferenceWidth { get; set; }
     public int SpeakerReferenceHeight { get; set; }
@@ -69,6 +81,7 @@ public sealed class SavedTargetConfig
 /// <summary>How images are prepared and read.</summary>
 public sealed class OcrConfig
 {
+    public int CorrectionsVersion { get; set; }
     public List<OcrCorrection> Corrections { get; set; } = OcrCorrections.Defaults();
     /// <summary>Which backend: <c>windows</c> for the in-box recognizer (needs the language's OCR feature), <c>rapidocr</c> for the bundled model.</summary>
     public string Engine { get; set; } = "rapidocr";
@@ -448,8 +461,16 @@ public sealed class AppConfig
         Ocr ??= new();
         Ocr.Corrections ??= OcrCorrections.Defaults();
         Ocr.Corrections = Ocr.Corrections.Where(r => r is not null && r.Wrong is { Length: > 0 and <= 200 }
-            && r.Correct is { Length: > 0 and <= 200 } && r.Field is "speaker" or "body"
+            && r.Correct is { Length: > 0 and <= 200 } && r.Field is "speaker" or "title" or "name" or "body"
             && DefaultLanguagePresets.IsSupported(r.Language, false) && r.Profile is not null).Take(500).ToList();
+        if (Ocr.CorrectionsVersion < 1)
+        {
+            var rule = OcrCorrections.DanteNameRule();
+            if (Ocr.Corrections.Count < 500 && !Ocr.Corrections.Any(r => r.Language == rule.Language
+                && r.Profile == rule.Profile && r.Field == rule.Field && r.Wrong == rule.Wrong))
+                Ocr.Corrections.Add(rule);
+            Ocr.CorrectionsVersion = 1;
+        }
         Translation ??= new();
         Overlay ??= new();
         RegionPicker ??= new();

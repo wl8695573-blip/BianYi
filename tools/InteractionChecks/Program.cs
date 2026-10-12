@@ -261,6 +261,11 @@ internal static partial class Program
         {
             Invoke(main, "PopulateChoices");
             Invoke(main, "LoadConfigIntoUi");
+            var translation = (TextBox)main.FindName("TranslationBox");
+            translation.Text = "称号：管理人\n姓名：但丁\n正文：示例台词。";
+            var root = (FrameworkElement)main.Content;
+            root.Measure(new Size(900,660)); root.Arrange(new Rect(0,0,900,660)); root.UpdateLayout();
+            Check(translation.ActualHeight >= 76, "minimum main window shows all three field rows");
             ((TextBox)main.FindName("ModelBox")).Text = "custom-unsaved-model";
             var chooser = (ComboBox)main.FindName("OverlayPresetCombo");
             for (var cycle = 0; cycle < 5; cycle++)
@@ -305,6 +310,12 @@ internal static partial class Program
             Check(Field<TextBlock>(overlay, "_speakerText").Text == "食指｜里恩"
                 && Field<TextBlock>(overlay,"_speakerText").FontSize < Field<TextBlock>(overlay,"_translationText").FontSize,
                 "speaker translated separately with smaller text");
+            overlay.ShowDialogue("原文", "测试台词", new(250,200,420,90), "管理人", "但丁", true);
+            Check(Field<TextBlock>(overlay,"_speakerText").Text == "称号：管理人\n姓名：但丁"
+                && Field<TextBlock>(overlay,"_translationText").Text == "正文：测试台词", "overlay explicit title name body labels");
+            overlay.ShowDialogue("原文", "通用译文", new(250,200,420,90), "", "", false);
+            Check(Field<TextBlock>(overlay,"_speakerText").Visibility == Visibility.Collapsed
+                && Field<TextBlock>(overlay,"_translationText").Text == "通用译文", "plain overlay omits unused role labels");
             config.MaxLines = 1;
             overlay.ShowTranslated("Body", "第一行\n第二行\n第三行", new Int32Rect(250,200,420,90), "称号｜姓名");
             Check(Field<TextBlock>(overlay,"_translationText").Text.Contains("第三行"), "overlay retains complete body despite legacy max-lines setting");

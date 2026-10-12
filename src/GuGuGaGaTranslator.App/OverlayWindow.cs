@@ -8,6 +8,7 @@ using System.Windows.Media.Effects;
 using GuGuGaGaTranslator.Core.Config;
 using GuGuGaGaTranslator.Core.Interop;
 using GuGuGaGaTranslator.Core.Pipeline;
+using GuGuGaGaTranslator.Core.Text;
 
 namespace GuGuGaGaTranslator.App;
 
@@ -394,6 +395,14 @@ public sealed class OverlayWindow : Window
         if (!IsVisible && !_suspended && !_dismissed)
             Show();
         UpdateLanguageBar();
+    }
+
+    public void ShowDialogue(string source, string translation, Int32Rect region,
+        string title, string name, bool structured)
+    {
+        var fields = structured || title.Length > 0 || name.Length > 0;
+        ShowTranslated(source, fields ? "正文：" + translation : translation, region,
+            DialogueFields.Header(title, name, fields));
     }
 
     /// <summary>Reposition the overlay for a region in physical screen pixels, following the target window.</summary>

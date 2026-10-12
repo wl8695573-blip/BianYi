@@ -211,6 +211,38 @@ public sealed partial class AppSession : IAsyncDisposable
             : null;
     }
 
+    public Int32Rect? ResolveTitleRegion() => ResolveRoleRegion(Config.Target.TitleRegion,
+        Config.Target.TitleReferenceWidth, Config.Target.TitleReferenceHeight);
+
+    public Int32Rect? ResolveNameRegion() => ResolveRoleRegion(Config.Target.NameRegion,
+        Config.Target.NameReferenceWidth, Config.Target.NameReferenceHeight);
+
+    private Int32Rect? ResolveRoleRegion(RegionRect? region, int width, int height) =>
+        region is { IsUsable: true } local && FindTarget() is { IsMinimized: false, HasClientArea: true } window
+            ? TargetRegionResolver.Resolve(local, window.ClientRect, width, height) : null;
+
+    public void SetRoleRegion(WindowInfo window, Int32Rect selection, bool name)
+    {
+        SetTarget(window);
+        var client = window.ClientRect;
+        var local = new RegionRect(selection.X - client.X, selection.Y - client.Y, selection.Width, selection.Height);
+        if (name)
+        {
+            Config.Target.NameRegion = local;
+            Config.Target.NameReferenceWidth = client.Width;
+            Config.Target.NameReferenceHeight = client.Height;
+        }
+        else
+        {
+            Config.Target.TitleRegion = local;
+            Config.Target.TitleReferenceWidth = client.Width;
+            Config.Target.TitleReferenceHeight = client.Height;
+        }
+        Config.Target.SpeakerRegion = null;
+        Config.Target.SpeakerReferenceWidth = Config.Target.SpeakerReferenceHeight = 0;
+        ForgetContext();
+    }
+
     public void SetSpeakerRegion(WindowInfo window, Int32Rect selection)
     {
         SetTarget(window);
@@ -229,6 +261,12 @@ public sealed partial class AppSession : IAsyncDisposable
             RememberTargetSettings();
             var saved = Config.SavedTargets.LastOrDefault(item => item.Identity.Equals(window.Identity, StringComparison.OrdinalIgnoreCase));
             Config.Target.Region = saved?.Region;
+            Config.Target.TitleRegion = saved?.TitleRegion;
+            Config.Target.TitleReferenceWidth = saved?.TitleReferenceWidth ?? 0;
+            Config.Target.TitleReferenceHeight = saved?.TitleReferenceHeight ?? 0;
+            Config.Target.NameRegion = saved?.NameRegion;
+            Config.Target.NameReferenceWidth = saved?.NameReferenceWidth ?? 0;
+            Config.Target.NameReferenceHeight = saved?.NameReferenceHeight ?? 0;
             Config.Target.SpeakerRegion = saved?.SpeakerRegion;
             Config.Target.SpeakerReferenceWidth = saved?.SpeakerReferenceWidth ?? 0;
             Config.Target.SpeakerReferenceHeight = saved?.SpeakerReferenceHeight ?? 0;
@@ -259,6 +297,12 @@ public sealed partial class AppSession : IAsyncDisposable
         {
             Identity = Config.Target.Identity,
             Region = Config.Target.Region,
+            TitleRegion = Config.Target.TitleRegion,
+            TitleReferenceWidth = Config.Target.TitleReferenceWidth,
+            TitleReferenceHeight = Config.Target.TitleReferenceHeight,
+            NameRegion = Config.Target.NameRegion,
+            NameReferenceWidth = Config.Target.NameReferenceWidth,
+            NameReferenceHeight = Config.Target.NameReferenceHeight,
             SpeakerRegion = Config.Target.SpeakerRegion,
             SpeakerReferenceWidth = Config.Target.SpeakerReferenceWidth,
             SpeakerReferenceHeight = Config.Target.SpeakerReferenceHeight,
@@ -359,6 +403,8 @@ public sealed partial class AppSession : IAsyncDisposable
         {
             RegionProvider = ResolveRegion,
             SpeakerRegionProvider = ResolveSpeakerRegion,
+            TitleRegionProvider = ResolveTitleRegion,
+            NameRegionProvider = ResolveNameRegion,
             CorrectOcr = (text, field) => OcrCorrections.Apply(text, _languages.From,
                 Config.Translation.ActiveProfile, field, Config.Ocr.Corrections ?? []),
             TargetHandle = () => FindTarget()?.Handle ?? 0,

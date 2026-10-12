@@ -95,10 +95,14 @@
         <Button x:Name="RegionButton" Content="框选正文" Click="OnPickRegion" />
       </UniformGrid>
       <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,0,0,4">
-        <Button Content="框选称号／姓名" Click="OnPickSpeaker" ToolTip="仅框住称号和姓名：最后一行作为姓名，其余行作为称号" />
-        <Button Content="清除称号／姓名" Click="OnClearSpeaker" />
+        <Button Content="框选称号" Click="OnPickTitle" ToolTip="仅框住角色称号，例如管理人" />
+        <Button Content="框选姓名" Click="OnPickName" ToolTip="仅框住角色姓名，例如ダンテ" />
       </UniformGrid>
-      <TextBlock x:Name="SpeakerRegionSummary" DockPanel.Dock="Top" Text="称号／姓名：未设置（可选）"
+      <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,0,0,4">
+        <Button Content="清除称号" Click="OnClearTitle" />
+        <Button Content="清除姓名" Click="OnClearName" />
+      </UniformGrid>
+      <TextBlock x:Name="SpeakerRegionSummary" DockPanel.Dock="Top" Text="称号：未设置&#x0a;姓名：未设置"
                  TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,4" />
       <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,0,0,8">
         <Button x:Name="BottomStripButton" Content="底部字幕 ▾" Click="OnBottomOptions"
@@ -123,7 +127,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="1.4*" MinHeight="140" />
           </Grid.RowDefinitions>
 
           <Border Padding="10" Margin="0,0,0,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"

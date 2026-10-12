@@ -2,11 +2,11 @@
 
 <img src="assets/lcta-app-wordmark.png" alt="LCTA 边·译图标" width="360" />
 
-LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开发。它在 Windows 上识别游戏或网页中的文字，把译文显示在置顶悬浮层中，主要面向《边狱巴士》剧情阅读，也保留通用框选翻译。
+LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开发。它在 Windows 上识别游戏或网页中的文字，把译文显示在置顶悬浮层中，主要面向《边狱巴士》剧情阅读，也保留通用框选翻译。针对《边狱巴士》，分别处理称号、姓名和正文，并提供日语姓名纠错与游戏术语匹配。
 
 支持 **中文、日语、英语、韩语互译**，附带离线 OCR 模型。目前内置的游戏术语档案只有《边狱巴士》，现有专名以英文、日文及对应中文译名为主。其他游戏可使用通用模式，或自行添加术语。
 
-**当前版本：LCTA 1.6.3。** 原仓库、历史版本和旧用户设置继续保留。
+**当前版本：LCTA 1.6.4。** 原仓库、历史版本和旧用户设置继续保留。
 
 [下载](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/latest) · [使用说明](docs/USAGE.md) · [更新记录](CHANGELOG.md) · [问题反馈](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new/choose)
 
@@ -22,9 +22,9 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 
 | 文件 | 用途 |
 |---|---|
-| [LCTA-Setup-1.6.3.exe](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.3/LCTA-Setup-1.6.3.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
-| [LCTA-win-x64-1.6.3.zip](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.3/LCTA-win-x64-1.6.3.zip) | 便携版，完整解压后运行 `LCTA/LCTA.exe`，保留同目录的 DLL、模型及词库。 |
-| [SHA256SUMS-1.6.3.txt](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.3/SHA256SUMS-1.6.3.txt) | 安装版和便携版的 SHA256 校验值。 |
+| [LCTA-Setup-1.6.4.exe](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.4/LCTA-Setup-1.6.4.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
+| [LCTA-win-x64-1.6.4.zip](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.4/LCTA-win-x64-1.6.4.zip) | 便携版，完整解压后运行 `LCTA/LCTA.exe`，保留同目录的 DLL、模型及词库。 |
+| [SHA256SUMS-1.6.4.txt](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.4/SHA256SUMS-1.6.4.txt) | 安装版和便携版的 SHA256 校验值。 |
 
 新安装请选择空目录；升级时先退出旧程序，再安装到原来已登记的目录。便携版解压到新目录，避免混用旧文件。默认沿用 `%APPDATA%\GuGuGaGaTranslator`，保留已有设置、密钥和个人术语；1.6.1 可在“支持”页迁移到其他磁盘。
 
@@ -34,7 +34,7 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 
 1. **配置服务。** 首次启动选择翻译服务，填写自己的账户或本地模型配置，测试后保存。预览模式仅识别，不翻译。
 2. **选择窗口。** 游戏建议使用窗口模式或无边框窗口；在左侧选择游戏或浏览器窗口。
-3. **框选字幕。** 点击“框选正文”，只选台词范围；称号和姓名使用“框选称号／姓名”单独设置。后续翻译持续使用该区域，并随窗口移动和尺寸调整；布局变化时重新框选。
+3. **框选字幕。** 点击“框选正文”，只选台词范围；再用“框选称号”和“框选姓名”分别选择角色信息。后续翻译使用保存的三个区域，并随窗口移动和尺寸调整；布局变化时重新框选。网页可只设置正文。
 4. **选择方向并开始。** 默认自动识别原文并译成中文，也可切换十二种四语方向。非边狱巴士内容使用通用模式。
 5. **调整译文。** 控制条左端拖动柄可移动整组悬浮层，右端 `×` 关闭并停止翻译。长译文可在编辑模式下滚动查看。
 

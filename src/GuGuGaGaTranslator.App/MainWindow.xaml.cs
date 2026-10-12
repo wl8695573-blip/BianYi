@@ -11,6 +11,7 @@ using GuGuGaGaTranslator.Core.Config;
 using GuGuGaGaTranslator.Core.Interop;
 using GuGuGaGaTranslator.Core.Ocr;
 using GuGuGaGaTranslator.Core.Pipeline;
+using GuGuGaGaTranslator.Core.Text;
 using GuGuGaGaTranslator.Core.Translation;
 using Microsoft.Win32;
 
@@ -823,7 +824,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Frame a region for a target and translate it; shared by the button and the hotkey.</summary>
-    private void PickRegionFor(WindowInfo target, bool speaker = false)
+    private void PickRegionFor(WindowInfo target, string field = "body")
     {
         // 和微信截图一样:框选时把自己的窗口收起来,免得控制窗口、翻译框和语言条压在要框的东西上。
         // 关掉这个选项时什么也不藏,方便对照着原来的界面框。
@@ -851,14 +852,14 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (speaker) _session.SetSpeakerRegion(target, region.Value);
+        if (field != "body") _session.SetRoleRegion(target, region.Value, name: field == "name");
         else _session.SetRegion(target, region.Value);
         _session.SaveConfig();
         UpdateTargetSummary();
         UpdateSpeakerSummary();
-        if (speaker)
+        if (field != "body")
         {
-            OnNotice("已保存称号／姓名区。最后一行作为姓名，其余行作为称号；正文请单独框选。");
+            OnNotice(field == "name" ? "已保存姓名区域。" : "已保存称号区域。");
             return;
         }
 
@@ -1130,10 +1131,12 @@ public partial class MainWindow : Window
         {
             _session.SetRegion(target, new Int32Rect(client.X + (int)(client.Width * .19), client.Y + (int)(client.Height * .79),
                 (int)(client.Width * .75), (int)(client.Height * .16)), manual: false);
-            _session.SetSpeakerRegion(target, new Int32Rect(client.X, client.Y + (int)(client.Height * .72),
-                (int)(client.Width * .18), (int)(client.Height * .14)));
+            _session.SetRoleRegion(target, new Int32Rect(client.X, client.Y + (int)(client.Height * .70),
+                (int)(client.Width * .18), (int)(client.Height * .07)), name: false);
+            _session.SetRoleRegion(target, new Int32Rect(client.X, client.Y + (int)(client.Height * .77),
+                (int)(client.Width * .18), (int)(client.Height * .10)), name: true);
             _session.SaveConfig(); UpdateTargetSummary();
-            OnNotice("已按边狱巴士布局分别设置正文与称号／姓名区域；如位置不同，请分别手动框选。");
+            OnNotice("已设置称号、姓名和正文区域；如位置不同，请分别手动框选。");
             return;
         }
 
@@ -1768,7 +1771,7 @@ public partial class MainWindow : Window
             _overlay?.SetStatus(Describe(update));
 
             if (update.Ocr is not null)
-                SourceBox.Text = (update.SpeakerSource.Length > 0 ? "称号／姓名：" + update.SpeakerSource + "\n正文：\n" : "") + update.SourceText;
+                SourceBox.Text = DialogueFields.Format(update.TitleSource, update.NameSource, update.SourceText, update.StructuredDialogue);
 
             if (update.Status is PipelineStatus.NoText or PipelineStatus.Blank or PipelineStatus.NoRegion)
             {
@@ -1789,11 +1792,12 @@ public partial class MainWindow : Window
                 return;
             }
 
-            TranslationBox.Text = (update.SpeakerTranslation.Length > 0 ? update.SpeakerTranslation + "\n" : "") + update.Translation;
+            TranslationBox.Text = DialogueFields.Format(update.TitleTranslation, update.NameTranslation, update.Translation, update.StructuredDialogue);
 
             var region = _session.ResolveRegion();
             if (region is { } rect)
-                _overlay?.ShowTranslated(update.SourceText, update.Translation, rect, update.SpeakerTranslation);
+                _overlay?.ShowDialogue(update.SourceText, update.Translation, rect,
+                    update.TitleTranslation, update.NameTranslation, update.StructuredDialogue);
 
             var stats = _session.Pipeline?.Stats;
             if (stats is not null)
