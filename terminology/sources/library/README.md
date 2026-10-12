@@ -1,17 +1,17 @@
-# 零协会术语资料（预留）
+# 术语库
 
-**状态：等待授权与资料。** 本目录当前没有零协会提供的术语库。
+**状态：预留，术语文件为空。** 本目录用于整理后续收到的术语资料，提供方、出处和使用条件在库内记录。
 
 ## 取得资料后放在哪里
 
-- `source.json`：填写资料来源、版本、收到日期、允许的用途及署名要求。
+- `source.json`：在 `provider` 中填写资料提供方，再填写来源、版本、收到日期、允许的用途及署名要求。
 - `terms.json`：将允许公开的术语整理到 `terms` 数组中。无需改动 `schemaVersion` 和 `sourceId`。
 
-如果零协会提供 Excel、CSV 或其他格式，可以先在本机保留原件，再转换成这里的条目格式。原件是否公开，以对方允许的范围为准。
+如果收到 Excel、CSV 或其他格式，可以先在本机保留原件，再转换成这里的条目格式。原件是否公开，以提供方允许的范围为准。
 
 ## 来源记录怎么填写
 
-`source.json` 是维护记录，客户端不会读取。授权未确认时保持 `status: "awaiting-permission"`。确认后改为 `permission-confirmed`，并按实际允许的范围填写 `permission`：
+`source.json` 是维护记录，客户端不会读取。未收到资料时保持 `status: "reserved"`；收到需要授权的资料后改为 `awaiting-permission`。确认后改为 `permission-confirmed`，并按实际允许的范围填写 `permission`：
 
 | 字段 | 含义 |
 |---|---|
@@ -25,11 +25,11 @@
 
 这些字段记录实际约定，填写本身不构成授权。计划采用的公开保存、随包分发和在线更新都应先确认；没有许可名称时可以保留 `license: null`，在 `usageSummary` 中写明双方确认的条件。
 
-资料中的 `sourceUrl`、`sourceVersion`、`receivedAt` 分别记录来源链接、提供方版本和收到日期。发布后在 `publishedLibraryVersion` 中记录收录这些资料的公共词库版本。
+资料中的 `provider`、`sourceUrl`、`sourceVersion`、`receivedAt` 分别记录提供方、来源链接、提供方版本和收到日期。发布后在 `publishedLibraryVersion` 中记录收录这些资料的公共词库版本。来自其他提供方或用户的条目，在各条目的 `note` 和 `sourceUrl` 中注明对应来源；使用条件也应分别记录。
 
 ## 术语条目格式
 
-每条术语采用公共词库现有的字段。以下只是填写示例，不是零协会提供的数据；请把真实资料写进 `terms.json` 的数组中：
+每条术语采用公共词库现有的字段。以下只是填写示例；请把真实资料写进 `terms.json` 的数组中：
 
 ```json
 {
@@ -37,7 +37,7 @@
   "source": "原文写法",
   "target": "中文译名",
   "forbidden": [],
-  "note": "称号、姓名或其他术语；可补充适用场景",
+  "note": "来源：资料提供方；称号、姓名或其他术语；适用场景",
   "sourceUrl": "https://example.com/reference",
   "reviewStatus": "待核对",
   "enabled": false

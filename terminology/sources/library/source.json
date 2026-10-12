@@ -1,8 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "zero-association",
-  "name": "零协会",
-  "status": "awaiting-permission",
+  "id": "limbus-terminology",
+  "name": "术语库",
+  "provider": null,
+  "status": "reserved",
   "sourceUrl": null,
   "sourceVersion": null,
   "receivedAt": null,
