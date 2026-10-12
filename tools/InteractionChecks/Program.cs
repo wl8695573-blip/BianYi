@@ -311,8 +311,8 @@ internal static partial class Program
                 && Field<TextBlock>(overlay,"_speakerText").FontSize < Field<TextBlock>(overlay,"_translationText").FontSize,
                 "speaker translated separately with smaller text");
             overlay.ShowDialogue("原文", "测试台词", new(250,200,420,90), "管理人", "但丁", true);
-            Check(Field<TextBlock>(overlay,"_speakerText").Text == "称号：管理人\n姓名：但丁"
-                && Field<TextBlock>(overlay,"_translationText").Text == "正文：测试台词", "overlay explicit title name body labels");
+            Check(Field<TextBlock>(overlay,"_speakerText").Text == "管理人\n但丁"
+                && Field<TextBlock>(overlay,"_translationText").Text == "测试台词", "overlay retains role content without field labels");
             overlay.ShowDialogue("原文", "通用译文", new(250,200,420,90), "", "", false);
             Check(Field<TextBlock>(overlay,"_speakerText").Visibility == Visibility.Collapsed
                 && Field<TextBlock>(overlay,"_translationText").Text == "通用译文", "plain overlay omits unused role labels");

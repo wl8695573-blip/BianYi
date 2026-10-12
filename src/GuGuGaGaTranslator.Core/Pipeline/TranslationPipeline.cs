@@ -498,14 +498,17 @@ public sealed class TranslationPipeline : IAsyncDisposable
         _lastRecognizedAt = DateTimeOffset.Now;
 
         var sourceText = TextNormalizer.Tidy(_settings.CorrectOcr(ocr.Text, "body"));
-        var speakerSource = speakerOcr is null ? "" : _settings.CorrectOcr(OcrCorrections.Speaker(speakerOcr, _settings.Languages().From), "speaker");
+        var speakerSource = speakerOcr is null ? "" : OcrCorrections.Speaker(speakerOcr, _settings.Languages().From);
         var (titleSource, nameSource) = DialogueFields.LegacySpeaker(speakerSource);
         if (separateRoles)
         {
-            titleSource = TextNormalizer.Tidy(_settings.CorrectOcr(titleOcr?.Text ?? "", "title"));
-            nameSource = TextNormalizer.Tidy(_settings.CorrectOcr(nameOcr?.Text ?? "", "name"));
-            speakerSource = titleSource + "｜" + nameSource;
+            titleSource = titleOcr?.Text ?? "";
+            nameSource = nameOcr?.Text ?? "";
         }
+        // 先分字段再纠错，旧合并选区也使用称号和姓名各自的规则。
+        titleSource = TextNormalizer.Tidy(_settings.CorrectOcr(titleSource, "title"));
+        nameSource = TextNormalizer.Tidy(_settings.CorrectOcr(nameSource, "name"));
+        speakerSource = separateRoles || speakerRegion is not null ? titleSource + "｜" + nameSource : "";
         var structured = separateRoles || speakerRegion is not null;
         var identity = speakerSource.Length == 0 ? sourceText : speakerSource + "\n" + sourceText;
         var skip = SkipReason(sourceText, _settings.Languages().From);

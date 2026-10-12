@@ -6,7 +6,7 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 
 支持 **中文、日语、英语、韩语互译**，附带离线 OCR 模型。目前内置的游戏术语档案只有《边狱巴士》，现有专名以英文、日文及对应中文译名为主。其他游戏可使用通用模式，或自行添加术语。
 
-**当前版本：LCTA 1.6.4。** 原仓库、历史版本和旧用户设置继续保留。
+**当前版本：LCTA 1.6.5。** 原仓库、历史版本和旧用户设置继续保留。
 
 [下载](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/latest) · [使用说明](docs/USAGE.md) · [更新记录](CHANGELOG.md) · [问题反馈](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new/choose)
 
@@ -22,9 +22,9 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 
 | 文件 | 用途 |
 |---|---|
-| [LCTA-Setup-1.6.4.exe](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.4/LCTA-Setup-1.6.4.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
-| [LCTA-win-x64-1.6.4.zip](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.4/LCTA-win-x64-1.6.4.zip) | 便携版，完整解压后运行 `LCTA/LCTA.exe`，保留同目录的 DLL、模型及词库。 |
-| [SHA256SUMS-1.6.4.txt](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.4/SHA256SUMS-1.6.4.txt) | 安装版和便携版的 SHA256 校验值。 |
+| [LCTA-Setup-1.6.5.exe](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.5/LCTA-Setup-1.6.5.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
+| [LCTA-win-x64-1.6.5.zip](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.5/LCTA-win-x64-1.6.5.zip) | 便携版，完整解压后运行 `LCTA/LCTA.exe`，保留同目录的 DLL、模型及词库。 |
+| [SHA256SUMS-1.6.5.txt](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.5/SHA256SUMS-1.6.5.txt) | 安装版和便携版的 SHA256 校验值。 |
 
 新安装请选择空目录；升级时先退出旧程序，再安装到原来已登记的目录。便携版解压到新目录，避免混用旧文件。默认沿用 `%APPDATA%\GuGuGaGaTranslator`，保留已有设置、密钥和个人术语；1.6.1 可在“支持”页迁移到其他磁盘。
 

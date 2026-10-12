@@ -31,6 +31,14 @@ internal static class DialogueFieldChecks
         Program.Check(DialogueFields.Format("管理人", "但丁", "测试台词") == "称号：管理人\n姓名：但丁\n正文：测试台词", "fields: explicit three-line output");
         Program.Check(DialogueFields.Format("", "", "网页正文") == "网页正文", "fields: plain translation stays plain");
         Program.Check(DialogueFields.Format("管理人", "", "测试") == "称号：管理人\n姓名：\n正文：测试", "fields: missing name is not invented");
+        Program.Check(DialogueFields.LegacySpeaker("管理人|グンテ") == ("管理人", "グンテ"), "fields: legacy half-width separator");
+        var normalized = OcrCorrections.Apply("管理人｜グンテ", "ja", "limbus-company", "speaker", rules);
+        var parsed = DialogueFields.LegacySpeaker(normalized);
+        Program.Check(parsed == ("管理人", "グンテ"), "fields: legacy separator after NFKC normalization");
+        Program.Check(OcrCorrections.Apply(parsed.Name, "ja", "limbus-company", "name", rules) == "ダンテ", "fields: legacy name corrected after split");
+        Program.Check(DialogueFields.Translated("管理人", "但丁", "测试台词") == "管理人\n但丁\n测试台词", "fields: translation keeps content without labels");
+        Program.Check(DialogueFields.Translated("", "但丁", "测试台词") == "但丁\n测试台词", "fields: translation omits empty role rows");
+        Program.Check(DialogueFields.Translated("", "", "网页正文") == "网页正文", "fields: plain translated output has no labels");
 
         var root = Path.Combine(scratch, "three-regions");
         await using (var session = new AppSession(root))
@@ -103,6 +111,48 @@ internal static class DialogueFieldChecks
         var fresh = await Next();
         Program.Check(!fresh.FromCache && fresh.NameTranslation == "良秀" && translator.Calls == 3, "fields: retranslate bypasses cache for three-field result");
         await pipeline.StopAsync();
+
+        var legacyRecognizer = new LegacyRoleRecognizer();
+        var legacyTranslator = new FieldTranslator();
+        var legacyResults = new ConcurrentQueue<PipelineUpdate>();
+        await using var legacy = new TranslationPipeline(new()
+        {
+            RegionProvider = () => new(40, 0, 100, 80),
+            SpeakerRegionProvider = () => new(0, 0, 40, 80),
+            Capture = r => new()
+            {
+                Width = r.Width,
+                Height = r.Height,
+                SourceRegion = r,
+                CapturedAt = DateTimeOffset.Now,
+                Bgra = Enumerable.Repeat((byte)80, r.Width * r.Height * 4).ToArray()
+            },
+            Recognizer = legacyRecognizer,
+            Translator = legacyTranslator,
+            Languages = () => new("ja", "zh-Hans"),
+            CorrectOcr = (text, field) => OcrCorrections.Apply(text, "ja", "limbus-company", field, rules),
+            Profile = () => new([new("管理人", "管理人"), new("ダンテ", "但丁")]),
+            Options = new() { OcrScale = 1, PollIntervalMs = 15, ForceRefreshMs = 0, TextSettleMs = 0, MaskOwnWindows = false }
+        });
+        legacy.Updated += u => { if (u.Status == PipelineStatus.Translated) legacyResults.Enqueue(u); };
+        legacy.Start();
+        async Task<PipelineUpdate> NextLegacy()
+        {
+            var end = Environment.TickCount64 + 4000;
+            while (Environment.TickCount64 < end)
+            { if (legacyResults.TryDequeue(out var u)) return u; await Task.Delay(15); }
+            throw new TimeoutException("legacy role fields");
+        }
+        var oldFields = await NextLegacy();
+        Program.Check(oldFields.TitleSource == "管理人" && oldFields.NameSource == "ダンテ", "fields: legacy OCR lines split before normalization and name correction");
+        Program.Check(oldFields.TitleTranslation == "管理人" && oldFields.NameTranslation == "但丁" && legacyTranslator.Calls == 1,
+            "fields: legacy combined region translates both fields without model guessing");
+        legacyRecognizer.Combined = true;
+        legacy.InvalidateTranslation();
+        var oneLine = await NextLegacy();
+        Program.Check(oneLine.TitleSource == "管理人" && oneLine.NameSource == "ダンテ" && oneLine.FromCache,
+            "fields: already normalized combined OCR line preserves both fields and cache");
+        await legacy.StopAsync();
     }
 
     private static WindowInfo Window(string process) => new()
@@ -150,5 +200,25 @@ internal static class DialogueFieldChecks
         public int Calls;
         public Task<string> TranslateAsync(TranslationRequest request, CancellationToken cancellationToken = default)
         { Interlocked.Increment(ref Calls); return Task.FromResult("测试台词"); }
+    }
+
+    private sealed class LegacyRoleRecognizer : ITextRecognizer
+    {
+        public string Id => "legacy-role-test";
+        public string LanguageTag => "ja";
+        public volatile bool Combined;
+        public Task<OcrResult> RecognizeAsync(Frame frame, CancellationToken cancellationToken = default)
+        {
+            var text = frame.Width == 40 ? (Combined ? new[] { "管理人|グンテ" } : new[] { "管理人", "グンテ" }) : new[] { "N社の装備。" };
+            return Task.FromResult(new OcrResult
+            {
+                Lines = text.Select(s => new OcrLine(s, new(0, 0, 10, 8), [])).ToArray(),
+                RecognizerId = Id,
+                LanguageTag = LanguageTag,
+                SourceWidth = frame.Width,
+                SourceHeight = frame.Height,
+                Duration = TimeSpan.Zero
+            });
+        }
     }
 }

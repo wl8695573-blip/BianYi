@@ -1792,7 +1792,7 @@ public partial class MainWindow : Window
                 return;
             }
 
-            TranslationBox.Text = DialogueFields.Format(update.TitleTranslation, update.NameTranslation, update.Translation, update.StructuredDialogue);
+            TranslationBox.Text = DialogueFields.Translated(update.TitleTranslation, update.NameTranslation, update.Translation);
 
             var region = _session.ResolveRegion();
             if (region is { } rect)
