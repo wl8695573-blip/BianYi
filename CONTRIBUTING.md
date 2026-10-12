@@ -32,6 +32,8 @@
 
 公共词库位于 [terminology](terminology/)，历史默认档案位于 [LimbusProfile.cs](src/GuGuGaGaTranslator.Core/Translation/LimbusProfile.cs)。维护者核实后更新公共 JSON 与版本／SHA256 清单，并在同一个提交中发布；步骤见 [词库维护说明](terminology/README.md)。
 
+已预留 [零协会术语资料目录](terminology/sources/zero-association/)，当前等待授权与资料。取得允许后，由维护者整理并收录到同一公共词库。用户的建议也由维护者核对后发布；可以用上方表单提交，或直接把原文、建议译名和出处发给维护者。
+
 **LCTA 1.5.0 起可独立更新公共词库。** 在“支持”页手动检查或启用自动应用；旧版需要升级程序，或按维护者说明导入兼容档案。提交 Issue 不会直接改动所有人的词表。需要立即使用时，在“术语与游戏 → 即时术语”添加个人条目；保存后当前句重新识别，公共更新保留这份个人列表。
 
 维护者处理时记录以下内容，方便提交者追踪：

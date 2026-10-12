@@ -70,6 +70,8 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 
 维护者通过 [公共词库目录](terminology/) 定期整理反馈。用户可提交 [术语补充／纠错](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml)，由维护者核对后发布。提交方法见 [贡献说明](CONTRIBUTING.md)。待核对条目保持禁用，历史术语出处正在逐步补全。
 
+已预留 [零协会术语资料位置](terminology/sources/zero-association/)，当前等待授权与资料。取得允许后会整理进公共词库，后续发行包自带收录后的词库，现有用户通过词库更新获取。
+
 ## 能做什么、需要注意什么
 
 | 功能 | 说明 |

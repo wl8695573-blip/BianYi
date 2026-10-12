@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "zero-association",
+  "name": "零协会",
+  "status": "awaiting-permission",
+  "sourceUrl": null,
+  "sourceVersion": null,
+  "receivedAt": null,
+  "permission": {
+    "reference": null,
+    "confirmedAt": null,
+    "publicRepository": false,
+    "bundledDistribution": false,
+    "onlineUpdates": false,
+    "adaptation": false,
+    "usageSummary": null,
+    "license": null,
+    "attribution": null
+  },
+  "dataFile": "terms.json",
+  "publishedLibraryVersion": null
+}

@@ -2,6 +2,17 @@
 
 本目录保存 LCTA 可下载的《边狱巴士》术语档案。`limbus-company.ggprofile.json` 是数据，`manifest.json` 记录版本和原始文件的 SHA256。程序随包附带这两个文件；检查更新时读取原仓库 `main` 分支中的同一路径。
 
+## 资料放在哪里
+
+| 位置 | 内容 |
+|---|---|
+| [公共词库](limbus-company.ggprofile.json) | 已发布、随程序附带的术语。 |
+| [更新清单](manifest.json) | 客户端核对的词库版本与 SHA256。 |
+| [零协会资料（预留）](sources/zero-association/) | 待授权的来源记录和空术语文件，取得允许后再整理、收录。 |
+| [术语反馈表单](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml) | 用户向维护者提交补充和纠错。 |
+
+GitHub 用版本管理保存 JSON 词库，客户端直接下载公开数据，无需另设数据库服务器。来源资料的整理与授权记录见 [收录说明](sources/README.md)。
+
 ## 用户如何更新
 
 LCTA 1.5.0 起，在“支持 → 程序与公共词库更新”点击“检查更新”。发现新词库后可手动应用，也可勾选自动应用。启动检查每天最多一次，可以关闭。
