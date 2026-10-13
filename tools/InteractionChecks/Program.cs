@@ -41,7 +41,7 @@ internal static partial class Program
                 new XAttribute(XNamespace.Xmlns + "x", "http://schemas.microsoft.com/winfx/2006/xaml"),
                 dictionary.Elements());
             app.Resources = (ResourceDictionary)XamlReader.Parse(resourceRoot.ToString(),
-                new ParserContext { BaseUri = new Uri("pack://application:,,,/LCTA;component/App.xaml") });
+                new ParserContext { BaseUri = new Uri("pack://application:,,,/BianYi;component/App.xaml") });
             // 显示真实模态窗口但放在屏幕外，不抓屏、不注册快捷键，也不加载用户配置。
             for (var cycle = 0; cycle < 4; cycle++)
             {
@@ -183,7 +183,8 @@ internal static partial class Program
             session.AutoDetectProfileAsync("English Newspaper").GetAwaiter().GetResult();
             Check(session.ActiveProfile == limbus, "disabled automatic matching preserves the manually chosen profile");
             var terms = GameProfiles.ForDirection(limbus, "auto", "zh-Hans");
-            Check(terms.Any(term => term.Source == "Identity") && terms.Any(term => term.Source == "人格"),
+            Check(terms.Any(term => term.Source == "Dante") && terms.Any(term => term.Source == "ダンテ")
+                && terms.Any(term => term.Source == "단테"),
                 "automatic source detection retains multilingual profile terms");
             session.ApplyProfileAsync(null).GetAwaiter().GetResult();
             session.Config.Target.Region = new RegionRect(0, 0, 100, 100);

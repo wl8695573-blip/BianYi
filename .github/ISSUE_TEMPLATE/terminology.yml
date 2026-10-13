@@ -54,11 +54,18 @@ body:
     id: evidence
     attributes:
       label: 出处、说明或截图
-      description: 请提供游戏章节／场景、译名来源或可核对的链接。可以将截图拖入此框；截图不便提供时请写明出处。边狱巴士术语目前以零协会汉化为参考，如采用其他译名请说明。
+      description: 请提供游戏章节／场景、译名来源或可核对的链接。可以将截图拖入此框；截图不便提供时请写明出处。请说明译名是自行翻译还是来自允许使用的资料，并提供对应依据。
     validations:
       required: true
   - type: markdown
     attributes:
       value: |
         提交后可在本条 Issue 下继续补充资料。维护者核对并修改后会回复处理结果，注明更新的获取方式，再关闭 Issue。
-        提交建议或修改本机术语不会直接改变公共库。维护者发布后，LCTA 1.5.0 可在“支持”页手动更新，或自行开启自动应用。
+        提交建议或修改本机术语不会直接改变公共库。维护者发布后，边译 1.5.0 可在“支持”页手动更新，或自行开启自动应用。
+  - type: checkboxes
+    id: contribution_permission
+    attributes:
+      label: 来源与收录确认
+      options:
+        - label: 我提交的是自行整理的内容，或已注明允许使用的来源；我允许维护者审核后将本人贡献随程序分发并公开更新。
+          required: true

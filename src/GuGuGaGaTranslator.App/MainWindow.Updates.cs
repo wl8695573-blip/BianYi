@@ -146,7 +146,7 @@ public partial class MainWindow
     private async void OnInstallAppUpdate(object sender, RoutedEventArgs e)
     {
         if (_appUpdate is not { } offer || _checkingUpdates) return;
-        var dialog = new SaveFileDialog { FileName = offer.InstallerName, Filter = "LCTA 安装包 (*.exe)|*.exe",
+        var dialog = new SaveFileDialog { FileName = offer.InstallerName, Filter = "边译安装包 (*.exe)|*.exe",
             InitialDirectory = PrepareUpdateDirectory(), Title = "选择新版安装包保存位置" };
         if (dialog.ShowDialog(this) != true) return;
         if (Path.GetFileName(dialog.FileName) != offer.InstallerName)

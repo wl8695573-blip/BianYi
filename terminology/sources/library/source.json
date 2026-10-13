@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "id": "limbus-terminology",
   "name": "术语库",
-  "provider": null,
-  "status": "reserved",
-  "sourceUrl": null,
-  "sourceVersion": null,
-  "receivedAt": null,
+  "provider": "边译社区",
+  "status": "independently-maintained",
+  "sourceUrl": "https://github.com/wl8695573-blip/GuGuGaGaTranslator/tree/main/terminology",
+  "sourceVersion": "2026.10.13.1",
+  "receivedAt": "2026-10-13",
   "permission": {
-    "reference": null,
-    "confirmedAt": null,
-    "publicRepository": false,
-    "bundledDistribution": false,
-    "onlineUpdates": false,
-    "adaptation": false,
-    "usageSummary": null,
+    "reference": "本项目独立整理的基础条目，依据见各条目的 note 和 sourceUrl",
+    "confirmedAt": "2026-10-13",
+    "publicRepository": true,
+    "bundledDistribution": true,
+    "onlineUpdates": true,
+    "adaptation": true,
+    "usageSummary": "仅分发本项目独立整理的基础映射，不包含第三方汉化组词库；后续第三方资料单独核对使用条件。",
     "license": null,
-    "attribution": null
+    "attribution": "边译社区维护"
   },
   "dataFile": "terms.json",
-  "publishedLibraryVersion": null
+  "publishedLibraryVersion": "2026.10.13.1"
 }

@@ -121,10 +121,10 @@ internal static class Lcta15Checks
     private static async Task CheckTermPersistenceAsync(string scratch)
     {
         var directory = Path.Combine(scratch, "public-terms-persistence");
-        var baseline = new GameProfile { Id = "limbus-company", Name = "test", ProfileVersion = "2026.10.8.1",
+        var baseline = new GameProfile { Id = "limbus-company", Name = "test", ProfileVersion = "2099.1.0.1",
             Terms = [new() { Source = "Outis", Target = "旧译名" }, new() { Source = "Nest", Target = "巢" }] };
         var incoming = GameProfileArchive.Clone(baseline);
-        incoming.ProfileVersion = "2026.10.8.2";
+        incoming.ProfileVersion = "2099.1.0.2";
         incoming.Terms[0].Target = "公共新译名";
         incoming.Terms[1].Target = "公共新巢";
         incoming.Terms.Add(new() { Source = "NewName", Target = "新术语" });
@@ -136,22 +136,22 @@ internal static class Lcta15Checks
             session.Config.Translation.GameProfiles = [local];
             session.Config.Translation.PersonalTerms = [new() { From = "en", To = "zh-Hans", Source = "Outis", Target = "个人译名" }];
             await session.UpdateTermLibraryAsync(incoming);
-            Program.Check(session.TermLibraryVersion == "2026.10.8.2" && !session.FindProfile("limbus-company")!.Terms[0].Enabled,
+            Program.Check(session.TermLibraryVersion == "2099.1.0.2" && !session.FindProfile("limbus-company")!.Terms[0].Enabled,
                 "LCTA 1.5: public update advances baseline while retaining user disabled term");
             Program.Check(session.FindProfile("limbus-company")!.Terms.Single(term => term.Source == "Nest").Target == "公共新巢"
                 && session.Config.Translation.PersonalTerms.Single().Target == "个人译名", "LCTA 1.5: public update retains personal list and updates unchanged term");
             await session.UpdateTermLibraryAsync(baseline);
-            Program.Check(session.TermLibraryVersion == "2026.10.8.2", "LCTA 1.5: term update cannot downgrade baseline");
+            Program.Check(session.TermLibraryVersion == "2099.1.0.2", "LCTA 1.5: term update cannot downgrade baseline");
         }
         await using (var restored = new AppSession(directory))
         {
             restored.LoadConfig();
-            Program.Check(restored.TermLibraryVersion == "2026.10.8.2" && restored.FindProfile("limbus-company")!.Terms.Any(term => term.Source == "NewName"),
+            Program.Check(restored.TermLibraryVersion == "2099.1.0.2" && restored.FindProfile("limbus-company")!.Terms.Any(term => term.Source == "NewName"),
                 "LCTA 1.5: public library and baseline survive restarting session");
             restored.Config.Translation.GameProfiles.Clear();
-            incoming.ProfileVersion = "2026.10.8.3";
+            incoming.ProfileVersion = "2099.1.0.3";
             await restored.UpdateTermLibraryAsync(incoming);
-            Program.Check(restored.FindProfile("limbus-company") is null && restored.TermLibraryVersion == "2026.10.8.3",
+            Program.Check(restored.FindProfile("limbus-company") is null && restored.TermLibraryVersion == "2099.1.0.3",
                 "LCTA 1.5: deleted game profile stays deleted without repeat update prompt");
         }
         var failedDirectory = Path.Combine(scratch, "public-terms-save-failure");

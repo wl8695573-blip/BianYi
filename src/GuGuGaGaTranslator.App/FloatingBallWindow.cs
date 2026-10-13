@@ -40,13 +40,13 @@ public sealed class FloatingBallWindow : Window
         Topmost = true;
         ShowInTaskbar = false;
         ShowActivated = false;
-        Title = "LCTA 悬浮球";
+        Title = "边译悬浮球";
         var layout = new Grid();
         // 沿字标橙色外轮廓裁切，保留中央缺口，桌面上不显示图片的黑色底边。
         var ball = new System.Windows.Shapes.Path
         {
             Data = Geometry.Parse("M0,0 L42.2,0 L42.2,6.9 L45.8,6.9 L45.8,0 L88,0 L88,40 L45.8,40 L45.8,32.9 L42.2,32.9 L42.2,40 L0,40 Z"),
-            Fill = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/LCTA;component/Assets/lcta-wordmark.png")))
+            Fill = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/BianYi;component/Assets/lcta-wordmark.png")))
             {
                 ViewboxUnits = BrushMappingMode.RelativeToBoundingBox,
                 Viewbox = new Rect(46d / 1815, 46d / 866, 1724d / 1815, 770d / 866), Stretch = Stretch.Fill
@@ -133,13 +133,13 @@ public sealed class FloatingBallWindow : Window
         var heading = new StackPanel { Orientation = Orientation.Horizontal };
         heading.Children.Add(new Image
         {
-            Source = new BitmapImage(new Uri("pack://application:,,,/LCTA;component/Assets/app-wordmark.png")),
+            Source = new BitmapImage(new Uri("pack://application:,,,/BianYi;component/Assets/app-wordmark.png")),
             Width = 54, Height = 26, Stretch = Stretch.Uniform, Margin = new Thickness(0, 0, 12, 0)
         });
         var text = new StackPanel();
         text.Children.Add(new TextBlock
         {
-            Text = "LCTA", FontSize = 16, FontFamily = new FontFamily("Bahnschrift"), FontWeight = FontWeights.SemiBold,
+            Text = "边译", FontSize = 16, FontFamily = new FontFamily("Bahnschrift"), FontWeight = FontWeights.SemiBold,
             Foreground = Theme.Brush("AccentBrush", Colors.DarkOrange)
         });
         text.Children.Add(new TextBlock

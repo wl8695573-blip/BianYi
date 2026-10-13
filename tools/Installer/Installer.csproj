@@ -8,9 +8,9 @@
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>GuGuGaGaTranslator.Installer</RootNamespace>
-    <AssemblyName>LCTA-Setup</AssemblyName>
-    <Title>LCTA 安装程序</Title>
-    <Product>LCTA</Product>
+    <AssemblyName>BianYi-Setup</AssemblyName>
+    <Title>边译 安装程序</Title>
+    <Product>边译</Product>
     <ApplicationIcon>..\..\src\GuGuGaGaTranslator.App\Assets\icon.ico</ApplicationIcon>
 
   </PropertyGroup>

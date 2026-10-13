@@ -47,8 +47,16 @@ public sealed partial class AppSession
             return;
         }
         var merged = GameProfileArchive.Clone(local);
-        merged.Terms = TermLibraryMerge.Merge(previous, incoming, local);
+        merged.Terms = TermLibraryMerge.Merge(previous, incoming, LegacyTermRetirement.PrepareLocal(local, incoming));
         merged.ProfileVersion = incoming.ProfileVersion;
+        var legacyMetadata = local.SourceUrl == "https://www.zeroasso.top/archive/main/"
+            && local.Author == "LCTA 社区维护";
+        if (legacyMetadata || local.Author == previous.Author) merged.Author = incoming.Author;
+        if (legacyMetadata || local.SourceUrl == previous.SourceUrl) merged.SourceUrl = incoming.SourceUrl;
+        if (legacyMetadata || local.Note == previous.Note) merged.Note = incoming.Note;
+        if (local.License == previous.License) merged.License = incoming.License;
+        if (local.Worldview == previous.Worldview) merged.Worldview = incoming.Worldview;
+        if (local.StyleHint == previous.StyleHint) merged.StyleHint = incoming.StyleHint;
         var problems = GameProfileArchive.Validate(merged);
         if (problems.Count > 0) throw new InvalidDataException(problems[0]);
         var index = Config.Translation.GameProfiles.IndexOf(local);

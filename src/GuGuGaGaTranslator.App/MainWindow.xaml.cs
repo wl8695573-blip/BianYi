@@ -1689,7 +1689,7 @@ public partial class MainWindow : Window
         {
             Filter = "诊断 ZIP (*.zip)|*.zip",
             DefaultExt = ".zip",
-            FileName = "LCTA-diagnostics-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".zip",
+            FileName = "BianYi-diagnostics-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".zip",
             InitialDirectory = PrepareExportDirectory(),
         };
         if (dialog.ShowDialog(this) != true)

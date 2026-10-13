@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Icon="Assets/icon.png"
-        Title="LCTA · 边狱巴士翻译助手"
+        Title="边译 · 边狱巴士翻译助手"
         Height="780" Width="1140"
         MinHeight="660" MinWidth="900"
         WindowStyle="None" ResizeMode="CanResize"
@@ -23,7 +23,7 @@
     <Border Grid.RowSpan="2" BorderBrush="{StaticResource AccentBrush}" BorderThickness="4"
             Background="{StaticResource WindowBackgroundBrush}" IsHitTestVisible="False" />
     <Grid Margin="14,4,8,0">
-      <TextBlock Text="LCTA · 边狱巴士翻译助手" VerticalAlignment="Center" FontSize="12"
+      <TextBlock Text="边译 · 边狱巴士翻译助手" VerticalAlignment="Center" FontSize="12"
                  Foreground="{StaticResource MutedTextBrush}" IsHitTestVisible="False" />
       <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
         <Button Style="{StaticResource WindowCaptionButton}" Click="OnMinimizeWindow" ToolTip="最小化"
@@ -75,7 +75,7 @@
         <Image DockPanel.Dock="Left" Source="Assets/app-wordmark.png" Width="138" Height="62"
                Stretch="Uniform" Margin="0,0,18,0" RenderOptions.BitmapScalingMode="HighQuality" />
         <StackPanel VerticalAlignment="Center">
-          <TextBlock Text="LCTA" FontFamily="{StaticResource DisplayFont}" FontSize="27" FontWeight="Bold"
+          <TextBlock Text="边译" FontFamily="{StaticResource DisplayFont}" FontSize="27" FontWeight="Bold"
                      Foreground="{StaticResource AccentBrush}" />
           <TextBlock Text="边狱巴士翻译助手 · 剧情阅读与屏幕翻译" Foreground="{StaticResource MutedTextBrush}" />
         </StackPanel>

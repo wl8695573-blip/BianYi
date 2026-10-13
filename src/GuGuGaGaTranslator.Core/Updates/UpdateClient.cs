@@ -20,7 +20,7 @@ public sealed class UpdateClient
     private static HttpClient CreateClient()
     {
         var client = new HttpClient { Timeout = Timeout.InfiniteTimeSpan };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("LCTA-Updater/1.6");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("BianYi-Updater/1.7");
         return client;
     }
 
@@ -62,15 +62,25 @@ public sealed class UpdateClient
         var version = (root.GetProperty("tag_name").GetString() ?? "").TrimStart('v', 'V');
         if (!Newer(version, currentVersion) || root.GetProperty("prerelease").GetBoolean()) return null;
         Uri? installer = null, checksums = null;
-        var name = $"LCTA-Setup-{version}.exe";
+        var canonicalName = $"BianYi-Setup-{version}.exe";
+        var name = canonicalName;
+        var legacyName = $"LCTA-Setup-{version}.exe";
         foreach (var asset in root.GetProperty("assets").EnumerateArray())
         {
             var assetName = asset.GetProperty("name").GetString();
-            if (assetName != name && assetName != $"SHA256SUMS-{version}.txt") continue;
+            if (assetName != canonicalName && assetName != legacyName && assetName != $"SHA256SUMS-{version}.txt") continue;
             var uri = new Uri(asset.GetProperty("browser_download_url").GetString()!);
             if (!uri.AbsoluteUri.StartsWith("https://github.com/" + Repository + "/releases/download/", StringComparison.Ordinal))
                 throw new InvalidDataException("安装包来源不受支持。");
-            if (assetName == name) installer = uri; else checksums = uri;
+            if (assetName == canonicalName || assetName == legacyName)
+            {
+                if (installer is null || assetName == canonicalName)
+                {
+                    installer = uri;
+                    name = assetName!;
+                }
+            }
+            else checksums = uri;
         }
         return installer is null || checksums is null ? null : new(version,
             new Uri("https://github.com/" + Repository + "/releases/tag/v" + version), installer, checksums, name);

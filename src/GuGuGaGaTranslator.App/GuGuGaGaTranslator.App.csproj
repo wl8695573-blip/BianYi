@@ -6,10 +6,10 @@
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>GuGuGaGaTranslator.App</RootNamespace>
-    <AssemblyName>LCTA</AssemblyName>
-    <Title>LCTA</Title>
-    <Product>LCTA</Product>
-    <Description>LCTA 屏幕翻译助手</Description>
+    <AssemblyName>BianYi</AssemblyName>
+    <Title>边译</Title>
+    <Product>边译</Product>
+    <Description>边译屏幕翻译助手</Description>
     <ApplicationManifest>app.manifest</ApplicationManifest>
 
 

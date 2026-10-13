@@ -30,9 +30,9 @@ public partial class InstallerWindow : Window
 
         SubtitleText.Text = $"屏幕实时翻译 · 版本 {Version} · 免安装可用,不需要管理员权限";
         IntroText.Text = "这个程序给游戏窗口里的文字做实时翻译:选中窗口、框住对话区域,译文就会贴在最上层。"
-            + "识别完全离线,翻译需要一个 API Key(首次启动时按提示领取,界面上有链接)。";
+            + "识别完全离线。在线翻译使用自己的接口凭据，也可连接本机模型。";
         PathBox.Text = DefaultDirectory();
-        StatusText.Text = $"点击「安装」开始。共 {PayloadSize():N0} MB 会被复制到上面这个目录,不会改动系统设置。";
+        StatusText.Text = $"点击「安装」开始。共 {PayloadSize():N0} MB 会被复制到上面这个目录，使用当前用户安装，不需要管理员权限。";
     }
 
     internal static string DefaultDirectory()
@@ -146,6 +146,7 @@ public partial class InstallerWindow : Window
         {
             if (registered is null || !Path.GetFullPath(registered).TrimEnd('\\').Equals(directory, StringComparison.OrdinalIgnoreCase)
                 || !(File.Exists(Path.Combine(directory, InstallationManifest.ExecutableName)) ||
+                     File.Exists(Path.Combine(directory, InstallationManifest.PreviousExecutableName)) ||
                      File.Exists(Path.Combine(directory, InstallationManifest.LegacyExecutableName))))
                 throw new InvalidOperationException("请选择空目录。仅已登记的本产品目录允许覆盖升级。");
             previousManifest = InstallationManifest.Read(directory);
@@ -194,6 +195,8 @@ public partial class InstallerWindow : Window
             }
             startMenuShortcut |= File.Exists(ShortcutPath(Environment.SpecialFolder.StartMenu, ProductName));
             desktopShortcut |= File.Exists(ShortcutPath(Environment.SpecialFolder.DesktopDirectory, ProductName));
+            startMenuShortcut |= File.Exists(ShortcutPath(Environment.SpecialFolder.StartMenu, InstallationManifest.PreviousDisplayName));
+            desktopShortcut |= File.Exists(ShortcutPath(Environment.SpecialFolder.DesktopDirectory, InstallationManifest.PreviousDisplayName));
         }
 
         if (startMenuShortcut)
@@ -215,8 +218,11 @@ public partial class InstallerWindow : Window
         {
             foreach (var folder in new[] { Environment.SpecialFolder.StartMenu, Environment.SpecialFolder.DesktopDirectory })
             {
-                var oldShortcut = ShortcutPath(folder, ProductName);
-                if (File.Exists(oldShortcut)) File.Delete(oldShortcut);
+                foreach (var name in new[] { ProductName, InstallationManifest.PreviousDisplayName })
+                {
+                    var oldShortcut = ShortcutPath(folder, name);
+                    if (File.Exists(oldShortcut)) File.Delete(oldShortcut);
+                }
             }
         }
         message("已登记到「应用和功能」");

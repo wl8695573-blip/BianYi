@@ -29,7 +29,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Term library validation failed' }
 if (-not ($Publish -or $Zip -or $Installer)) { return }
 if ($SingleFile -or $Installer) { $SelfContained = $true; $SingleFile = $true }
 $staging = Join-Path $root ('.artifacts\release-' + $version + '-' + [guid]::NewGuid().ToString('N'))
-$app = Join-Path $staging 'LCTA'
+$app = Join-Path $staging 'BianYi'
 $dist = Join-Path $root 'dist'
 New-Item -ItemType Directory -Path $app, $dist -Force | Out-Null
 $arguments = @('publish', (Join-Path $root 'src\GuGuGaGaTranslator.App\GuGuGaGaTranslator.App.csproj'),
@@ -85,7 +85,7 @@ foreach ($packageRoot in $assetData.packageFolders.PSObject.Properties.Name) {
     }
 }
 Write-Host "Published $app"
-& (Join-Path $root 'tools\sign-release.ps1') -Path (Join-Path $app 'LCTA.exe') -CertificateThumbprint $SignCertificateThumbprint -TimestampServer $TimestampServer -RequireSigning:$RequireSigning
+& (Join-Path $root 'tools\sign-release.ps1') -Path (Join-Path $app 'BianYi.exe') -CertificateThumbprint $SignCertificateThumbprint -TimestampServer $TimestampServer -RequireSigning:$RequireSigning
 $packageList = foreach ($library in $assetData.libraries.PSObject.Properties) {
     if ($library.Value.type -eq 'package') { [ordered]@{ name = $library.Name; sha512 = $library.Value.sha512 } }
 }
@@ -96,14 +96,16 @@ $extraModels = foreach ($name in @('korean_PP-OCRv5_rec_mobile.onnx','ppocrv5_ko
     [ordered]@{ directory = 'korean'; file = $name; sha256 = (Get-FileHash -LiteralPath (Join-Path $app "models\korean\$name") -Algorithm SHA256).Hash.ToLowerInvariant() }
 }
 [ordered]@{ schemaVersion = 1; version = $version; runtime = $Runtime; builtAtUtc = [DateTime]::UtcNow.ToString('o');
-    appSha256 = (Get-FileHash -LiteralPath (Join-Path $app 'LCTA.exe') -Algorithm SHA256).Hash.ToLowerInvariant();
-    appSignature = [string](Get-AuthenticodeSignature -LiteralPath (Join-Path $app 'LCTA.exe')).Status;
+    sourceCommit = (git -C $root rev-parse HEAD).Trim();
+    sourceDirty = [bool](git -C $root status --porcelain --untracked-files=no);
+    appSha256 = (Get-FileHash -LiteralPath (Join-Path $app 'BianYi.exe') -Algorithm SHA256).Hash.ToLowerInvariant();
+    appSignature = [string](Get-AuthenticodeSignature -LiteralPath (Join-Path $app 'BianYi.exe')).Status;
     models = @($modelHashes); extraModels = @($extraModels); packages = @($packageList)
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $app 'build-manifest.json') -Encoding utf8
 if (-not ($Zip -or $Installer)) { return }
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-$archive = Join-Path $dist "LCTA-$Runtime-$version.zip"
+$archive = Join-Path $dist "BianYi-$Runtime-$version.zip"
 if (Test-Path -LiteralPath $archive) { throw "Release archive already exists: $archive. Move this exact artifact aside before rebuilding." }
 $zipFile = [IO.Compression.ZipFile]::Open($archive, [IO.Compression.ZipArchiveMode]::Create)
 try {
@@ -111,7 +113,7 @@ try {
         if ($file.Extension -in '.pdb','.lib') { continue }
         $relative = $file.FullName.Substring($app.Length).TrimStart('\','/').Replace('\','/')
         [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zipFile, $file.FullName,
-            "LCTA/$relative", [IO.Compression.CompressionLevel]::Optimal)
+            "BianYi/$relative", [IO.Compression.CompressionLevel]::Optimal)
     }
 } finally { $zipFile.Dispose() }
 $assets = @($archive)
@@ -122,11 +124,16 @@ if ($Installer) {
     $setupOutput = Join-Path $staging 'installer'
     dotnet publish (Join-Path $root 'tools\Installer\Installer.csproj') -c $Configuration -r $Runtime -o $setupOutput --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true --nologo @restoreProperties
     if ($LASTEXITCODE -ne 0) { throw 'Installer publish failed' }
-    $setup = Join-Path $dist "LCTA-Setup-$version.exe"
+    $setup = Join-Path $dist "BianYi-Setup-$version.exe"
     if (Test-Path -LiteralPath $setup) { throw "Installer already exists: $setup" }
-    Copy-Item -LiteralPath (Join-Path $setupOutput 'LCTA-Setup.exe') -Destination $setup
+    Copy-Item -LiteralPath (Join-Path $setupOutput 'BianYi-Setup.exe') -Destination $setup
     & (Join-Path $root 'tools\sign-release.ps1') -Path $setup -CertificateThumbprint $SignCertificateThumbprint -TimestampServer $TimestampServer -RequireSigning:$RequireSigning
     $assets += $setup
+    # 旧版更新器仍查找 LCTA 文件名；兼容入口与边译安装器内容完全相同。
+    $legacySetup = Join-Path $dist "LCTA-Setup-$version.exe"
+    if (Test-Path -LiteralPath $legacySetup) { throw "Compatibility installer already exists: $legacySetup" }
+    Copy-Item -LiteralPath $setup -Destination $legacySetup
+    $assets += $legacySetup
 }
 $checksums = foreach ($file in $assets) { "{0}  {1}" -f (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant(), [IO.Path]::GetFileName($file) }
 [IO.File]::WriteAllLines((Join-Path $dist "SHA256SUMS-$version.txt"), [string[]]$checksums, [Text.Encoding]::ASCII)

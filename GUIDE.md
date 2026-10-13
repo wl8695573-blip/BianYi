@@ -2,7 +2,7 @@
 
 用户操作见 [使用说明](docs/USAGE.md)。本页说明代码入口、构建、检查和发布流程。
 
-后续开发按 [LCTA 修改计划与验收标准](docs/LCTA-CHANGE-PLAN.md) 记录任务。修改前核对当前实现，完成后更新对应编号的状态和实际验收结果。
+后续开发按 [边译 修改计划与验收标准](docs/LCTA-CHANGE-PLAN.md) 记录任务。修改前核对当前实现，完成后更新对应编号的状态和实际验收结果。
 
 ## 环境与构建
 
@@ -12,18 +12,18 @@
 git clone https://github.com/wl8695573-blip/GuGuGaGaTranslator.git
 cd GuGuGaGaTranslator
 .\build.ps1 -Configuration Debug
-.\src\GuGuGaGaTranslator.App\bin\Debug\net10.0-windows10.0.19041.0\LCTA.exe
+.\src\GuGuGaGaTranslator.App\bin\Debug\net10.0-windows10.0.19041.0\BianYi.exe
 ```
 
 文件被占用时，先退出使用该输出目录的程序。版本由 `Directory.Build.props` 定义，格式约定见 `.editorconfig`。
 
 ## 名称与图标
 
-LCTA 沿用 GuGuGaGaTranslator 的代码与版本历史，源码项目和命名空间暂时保留原名。应用输出为 `LCTA.exe`，安装器输出为 `LCTA-Setup.exe`。
+边译 沿用 GuGuGaGaTranslator 的代码与版本历史，源码项目和命名空间暂时保留原名。应用输出为 `BianYi.exe`，安装器输出为 `BianYi-Setup.exe`。
 
 `src/GuGuGaGaTranslator.App/Assets/lcta-wordmark.png` 是维护者选定的原始字标。`dotnet run --project tools/Icon -c Release` 会按比例生成窗口 PNG 和 16–256 像素的 ICO，不改变字标内容。
 
-为了沿用旧设置，默认配置目录、单实例锁、安装标记及卸载注册表标识保留旧名称。1.6.0 的 `DataDirectory` 通过当前用户注册表 `Software\LCTA\DataDirectory` 记录迁移后的目录，配置与密钥保存在该目录中。安装器使用原登记目录升级，在 Windows 应用列表和快捷方式中显示 LCTA。
+为了沿用旧设置，默认配置目录、单实例锁、安装标记及卸载注册表标识保留旧名称。1.6.0 的 `DataDirectory` 通过当前用户注册表 `Software\LCTA\DataDirectory` 记录迁移后的目录，配置与密钥保存在该目录中。安装器使用原登记目录升级，在 Windows 应用列表和快捷方式中显示 边译。
 
 GitHub 仓库改名时保留原仓库及历史，不重新建立空仓库；改名后同步 Git remote、文档链接和发布脚本的仓库参数。历史发行文件名保持原样。
 

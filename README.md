@@ -1,12 +1,12 @@
-# LCTA · 边狱巴士翻译助手
+# 边译 · 边狱巴士翻译助手
 
-<img src="assets/lcta-app-wordmark.png" alt="LCTA 边·译图标" width="360" />
+<img src="assets/lcta-app-wordmark.png" alt="边译 边·译图标" width="360" />
 
-LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开发。它在 Windows 上识别游戏或网页中的文字，把译文显示在置顶悬浮层中，主要面向《边狱巴士》剧情阅读，也保留通用框选翻译。针对《边狱巴士》，分别处理称号、姓名和正文，并提供日语姓名纠错与游戏术语匹配。
+边译由 GuGuGaGaTranslator、LCTA 延续开发。它在 Windows 上识别游戏或网页中的文字，把译文显示在置顶悬浮层中，主要面向《边狱巴士》剧情阅读，也保留通用框选翻译。针对《边狱巴士》，分别处理称号、姓名和正文，并提供日语姓名纠错与游戏术语匹配。
 
-支持 **中文、日语、英语、韩语互译**，附带离线 OCR 模型。目前内置的游戏术语档案只有《边狱巴士》，现有专名以英文、日文及对应中文译名为主。其他游戏可使用通用模式，或自行添加术语。
+支持 **中文、日语、英语、韩语互译**，附带离线 OCR 模型。目前内置《边狱巴士》的独立基础词库，共 17 条语言映射，包含少量常见人名、称呼与缩写，并非完整游戏术语库。其他专名由翻译服务处理，也可自行添加术语。
 
-**当前版本：LCTA 1.6.5。** 原仓库、历史版本和旧用户设置继续保留。
+**当前版本：边译 1.7.0。** 沿用原仓库和旧用户设置，程序输出改为 `BianYi.exe`。
 
 [下载](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/latest) · [使用说明](docs/USAGE.md) · [更新记录](CHANGELOG.md) · [问题反馈](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new/choose)
 
@@ -22,9 +22,9 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 
 | 文件 | 用途 |
 |---|---|
-| [LCTA-Setup-1.6.5.exe](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.5/LCTA-Setup-1.6.5.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
-| [LCTA-win-x64-1.6.5.zip](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.5/LCTA-win-x64-1.6.5.zip) | 便携版，完整解压后运行 `LCTA/LCTA.exe`，保留同目录的 DLL、模型及词库。 |
-| [SHA256SUMS-1.6.5.txt](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.6.5/SHA256SUMS-1.6.5.txt) | 安装版和便携版的 SHA256 校验值。 |
+| [BianYi-Setup-1.7.0.exe](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.7.0/BianYi-Setup-1.7.0.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
+| [BianYi-win-x64-1.7.0.zip](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.7.0/BianYi-win-x64-1.7.0.zip) | 便携版，完整解压后运行 `BianYi/BianYi.exe`，保留同目录的 DLL、模型及词库。 |
+| [SHA256SUMS-1.7.0.txt](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.7.0/SHA256SUMS-1.7.0.txt) | 安装版和便携版的 SHA256 校验值。 |
 
 新安装请选择空目录；升级时先退出旧程序，再安装到原来已登记的目录。便携版解压到新目录，避免混用旧文件。默认沿用 `%APPDATA%\GuGuGaGaTranslator`，保留已有设置、密钥和个人术语；1.6.1 可在“支持”页迁移到其他磁盘。
 
@@ -47,7 +47,7 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 ## 模型、保存位置与缓存
 
 - **模型：** 服务页提供 DeepSeek、GLM、硅基流动、通义千问、Gemini，以及本地 Ollama、Sakura、LM Studio 和自定义兼容接口。填写对应密钥和地址，读取可用模型或手动输入模型名，测试连接后点击“应用服务设置”。模型权限与费用由服务商决定。
-- **保存位置：** “支持 → 文件保存位置”可把整个数据目录迁移到 `X:\LCTA-data` 等空目录，保留原目录作为备份；缓存、日志、导出和更新下载目录可分别指定。调试证据目录与 OCR 模型目录也有选择按钮。
+- **保存位置：** “支持 → 文件保存位置”可把整个数据目录迁移到 `X:\边译-data` 等空目录，保留原目录作为备份；缓存、日志、导出和更新下载目录可分别指定。调试证据目录与 OCR 模型目录也有选择按钮。
 - **缓存：** 默认只保留内存缓存，可关闭或启用加密磁盘缓存；可设置容量、过期时间、是否区分上下文，查看命中率并分别清空内存或全部缓存。推荐保留“区分上下文”，减少剧情语境混用。
 
 具体步骤与文件用途见 [使用说明](docs/USAGE.md#缓存配置与保存位置)。
@@ -68,9 +68,9 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 
 公共词库可手动应用，或勾选自动应用。程序更新需要手动下载并启动安装器。两种下载都会校验 SHA256；失败时保留现有内容。新版安装包也包含发布时的公共词库。
 
-维护者通过 [公共词库目录](terminology/) 定期整理反馈。用户可提交 [术语补充／纠错](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml)，由维护者核对后发布。提交方法见 [贡献说明](CONTRIBUTING.md)。待核对条目保持禁用，历史术语出处正在逐步补全。
+维护者通过 [公共词库目录](terminology/) 定期整理反馈。用户可提交 [术语补充／纠错](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml)，由维护者核对后发布。提交方法见 [贡献说明](CONTRIBUTING.md)。请提供自行翻译或允许公开分发的内容，注明出处和使用条件。
 
-已预留 [术语库](terminology/sources/library/)，用于整理后续收到的术语资料，来源在库内记录。收录后的词库随后续发行包附带，现有用户通过词库更新获取。
+独立词库的 [来源与收录说明](terminology/sources/library/) 位于仓库中，后续收到的资料逐条标注来源。1.7.0 移除旧公共集合，替换未修改的历史内置条目；个人译名、禁用设置和自行添加的术语继续保留。收录后的词库随发行包附带，现有用户通过词库更新获取。
 
 ## 能做什么、需要注意什么
 
@@ -93,4 +93,4 @@ LCTA（Limbus Company Translation Assistant）由 GuGuGaGaTranslator 延续开�
 
 [维护指南](GUIDE.md) · [档案格式](docs/PROFILES.md) · [修改计划](docs/LCTA-CHANGE-PLAN.md) · [第三方说明](THIRD_PARTY_NOTICES.md)
 
-代码采用 [MIT](LICENSE) 许可，模型与第三方素材分别适用各自许可。LCTA 与 Project Moon、零协会及翻译服务商没有官方合作或背书关系。
+代码采用 [MIT](LICENSE) 许可，模型与第三方素材分别适用各自许可。边译 与 Project Moon、零协会及翻译服务商没有官方合作或背书关系。

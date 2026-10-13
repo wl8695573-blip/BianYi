@@ -28,7 +28,7 @@ internal static class Uninstall
                 throw new InvalidOperationException("安装标记与卸载登记不匹配。");
             _manifest = manifest;
             ScheduleDirectoryRemoval(onMessage);
-            foreach (var name in new[] { InstallationManifest.DisplayName, ProductName })
+            foreach (var name in new[] { InstallationManifest.DisplayName, InstallationManifest.PreviousDisplayName, ProductName })
             {
                 foreach (var shortcut in new[] {
                     Path.Combine(InstallationManifest.UserFolder(Environment.SpecialFolder.StartMenu), "Programs", name + ".lnk"),

@@ -9,4 +9,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="../../terminology/limbus-company.ggprofile.json" LogicalName="terminology.limbus-company.json" />
+  </ItemGroup>
+
 </Project>
