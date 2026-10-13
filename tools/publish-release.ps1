@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([switch]$Publish, [switch]$WithdrawLegacyReleases)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
