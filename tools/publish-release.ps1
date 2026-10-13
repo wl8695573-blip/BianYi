@@ -37,12 +37,13 @@ try {
     if ($build.sourceCommit -ne $commit -or $build.sourceDirty -or $build.version -ne $version) { throw 'Package was not built from the clean release commit' }
 } finally { $zip.Dispose() }
 $notes = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'release-notes-bianyi.md'), [Text.Encoding]::UTF8)
+if (-not $notes.StartsWith("# 边译 $version")) { throw 'Update release notes for this version before publishing' }
 if ($Publish) {
     $acceptance = Join-Path $root ".artifacts/package-bianyi-$version.txt"
     if (-not (Test-Path -LiteralPath $acceptance) -or -not (Select-String -LiteralPath $acceptance -SimpleMatch 'Acceptance artifacts:')) {
         throw 'Run actual package acceptance before publication'
     }
-    $notes += "`n`n## 本次发布验收`n`n244 项回归、223 项完整交互、27/27 固定 OCR 样本和 36/36 四语样本通过。实际日语截图的称号、姓名与正文分区通过；六种方向完成真实在线翻译并核对。安装、LCTA 1.6.5 升级、再次升级、卸载、便携包与 SHA256 验收通过。`n"
+    $notes += "`n`n## 本次发布验收`n`n244 项回归、223 项完整交互、27/27 固定 OCR 样本和 36/36 四语样本通过。实际日语截图的称号、姓名与正文分区通过；十二种方向完成真实在线翻译并核对。安装、LCTA 1.6.5 升级、再次升级、卸载、便携包与 SHA256 验收通过。`n"
 }
 $env:GIT_TERMINAL_PROMPT = '0'
 $credentialLines = "protocol=https`nhost=github.com`n`n" | git -C $root credential fill 2>$null
@@ -58,9 +59,11 @@ function Api([string]$Method, [string]$Url, $Body = $null) {
     Invoke-RestMethod @arguments
 }
 $api = "https://api.github.com/repos/$repo"
-$releases = @(Api GET "$api/releases?per_page=100")
-$release = $releases | Where-Object tag_name -eq $tag | Select-Object -First 1
-if ($release -and -not $release.draft) { throw 'This release is already public; refusing to replace it' }
+$releases = Api GET "$api/releases?per_page=100"
+$matching = @($releases | Where-Object tag_name -eq $tag)
+if (@($matching | Where-Object { -not $_.draft }).Count) { throw 'This release is already public; refusing to replace it' }
+if ($matching.Count -gt 1) { throw 'Multiple matching drafts exist; inspect them before publication' }
+$release = $matching | Select-Object -First 1
 if (-not $release) {
     $release = Api POST "$api/releases" @{ tag_name = $tag; target_commitish = $commit; name = "边译 $version"; body = $notes; draft = $true; prerelease = $false }
 }

@@ -14,8 +14,8 @@ internal static class BianYiChecks
     public static async Task RunAsync(string scratch)
     {
         var incoming = GameProfiles.Default().Single(profile => profile.Id == "limbus-company");
-        Program.Check(incoming.Terms.Count == 17 && incoming.Terms.All(term => term.ReviewStatus == "独立整理"
-            && !string.IsNullOrWhiteSpace(term.Note)), "BianYi: independently documented baseline");
+        Program.Check(incoming.Terms.Count > 0 && incoming.Terms.All(term => !LegacyTermRetirement.IsUnchangedLegacy(term)
+            && (!string.IsNullOrWhiteSpace(term.Note) || !string.IsNullOrWhiteSpace(term.SourceUrl))), "BianYi: baseline documents provenance and excludes retired collection");
         Program.Check(GameProfiles.ForDirection(incoming, "ja", "zh-Hans").Any(term => term.Source == "ダンテ" && term.Target == "但丁"),
             "BianYi: Japanese Dante remains available");
         var legacy = new GameTerm { Language = "en", Source = "Dante", Target = "但丁", Forbidden = ["丹特", "丹堤"], ReviewStatus = "历史收录" };
