@@ -5,7 +5,7 @@ namespace GuGuGaGaTranslator.Core.Translation;
 /// <summary>内置基础词库来自仓库中的公共 JSON，避免代码与随包数据分叉。</summary>
 internal static class LimbusProfile
 {
-    public static List<GameTerm> CreateTerms() => GameProfileArchive.Deserialize(BundledProfile()).Terms;
+    public static GameProfile CreateProfile() => GameProfileArchive.Deserialize(BundledProfile());
     private static string BundledProfile()
     {
         using var stream = typeof(LimbusProfile).Assembly.GetManifestResourceStream("terminology.limbus-company.json")

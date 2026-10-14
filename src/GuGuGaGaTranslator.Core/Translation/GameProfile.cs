@@ -253,21 +253,7 @@ public static class GameProfiles
     /// template meant to be replaced by 「AI 生成」 plus a few corrections.</summary>
     public static List<GameProfile> Default() =>
     [
-        new()
-        {
-            Id = "limbus-company",
-            Name = "边狱巴士 / Limbus Company",
-            WindowHints = ["Limbus", "边狱", "림버스"],
-            ProcessHints = ["LimbusCompany"],
-            Author = "边译社区维护",
-            SourceUrl = "https://github.com/wl8695573-blip/BianYi/tree/main/terminology",
-            ProfileVersion = LegacyTermRetirement.IndependentVersion,
-            Note = "独立维护的基础术语库，包含常见文学人名、直接翻译的称呼和保留的缩写。条目内记录来源与整理依据；其他专名由翻译服务处理，可添加个人术语。",
-            Worldview = LimbusProfile.Worldview,
-            StyleHint = LimbusProfile.StyleHint,
-            // 基础条目与公共 JSON 使用同一份资源，按当前翻译方向取用。
-            Terms = LimbusProfile.CreateTerms(),
-        },
+        LimbusProfile.CreateProfile(),
         new()
         {
             Id = "example-galgame",
