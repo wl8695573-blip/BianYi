@@ -1,6 +1,4 @@
-# 边译 · 边狱巴士翻译助手
-
-<img src="assets/lcta-app-wordmark.png" alt="边译 边·译图标" width="360" />
+# 边·译 <img src="assets/lcta-app-wordmark.png" alt="边·译图标" width="88" align="absmiddle" />
 
 边译由 GuGuGaGaTranslator、LCTA 延续开发。它在 Windows 上识别游戏或网页中的文字，把译文显示在置顶悬浮层中，主要面向《边狱巴士》剧情阅读，也保留通用框选翻译。针对《边狱巴士》，分别处理称号、姓名和正文，并提供日语姓名纠错与游戏术语匹配。
 
