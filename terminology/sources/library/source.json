@@ -4,20 +4,20 @@
   "name": "术语库",
   "provider": "边译社区",
   "status": "independently-maintained",
-  "sourceUrl": "https://github.com/wl8695573-blip/GuGuGaGaTranslator/tree/main/terminology",
-  "sourceVersion": "2026.10.13.1",
-  "receivedAt": "2026-10-13",
+  "sourceUrl": "https://github.com/wl8695573-blip/BianYi/tree/main/terminology",
+  "sourceVersion": "2026.10.14.1",
+  "receivedAt": "2026-10-14",
   "permission": {
-    "reference": "本项目独立整理的基础条目，依据见各条目的 note 和 sourceUrl",
-    "confirmedAt": "2026-10-13",
+    "reference": "本项目独立整理的四语名称对照，参考见 ../../multilingual.json 各条目的 sources；此处记录本项目维护范围，不表示参考网站或汉化组授权",
+    "confirmedAt": "2026-10-14",
     "publicRepository": true,
     "bundledDistribution": true,
     "onlineUpdates": true,
     "adaptation": true,
-    "usageSummary": "仅分发本项目独立整理的基础映射，不包含第三方汉化组词库；后续第三方资料单独核对使用条件。",
+    "usageSummary": "分发本项目选定的四语名称对应和整理说明，不包含第三方汉化组词库、汉化正文或参考网站的介绍段落；后续第三方资料单独核对使用条件。",
     "license": null,
     "attribution": "边译社区维护"
   },
   "dataFile": "terms.json",
-  "publishedLibraryVersion": "2026.10.13.1"
+  "publishedLibraryVersion": "2026.10.14.1"
 }

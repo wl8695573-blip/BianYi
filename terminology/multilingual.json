@@ -1,0 +1,634 @@
+{
+  "schemaVersion": 1,
+  "version": "2026.10.14.1",
+  "entries": [
+    {
+      "id": "yi-sang",
+      "category": "人物",
+      "zh": "李箱",
+      "ja": "イサン",
+      "ko": "이상",
+      "en": "Yi Sang",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Yi_Sang",
+        "https://wikiwiki.jp/lcbwiki/イサン"
+      ]
+    },
+    {
+      "id": "faust",
+      "category": "人物",
+      "zh": "浮士德",
+      "ja": "ファウスト",
+      "ko": "파우스트",
+      "en": "Faust",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Faust",
+        "https://wikiwiki.jp/lcbwiki/ファウスト"
+      ]
+    },
+    {
+      "id": "don-quixote",
+      "category": "人物",
+      "zh": "堂吉诃德",
+      "ja": "ドンキホーテ",
+      "ko": "돈키호테",
+      "en": "Don Quixote",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Don_Quixote",
+        "https://wikiwiki.jp/lcbwiki/ドンキホーテ"
+      ]
+    },
+    {
+      "id": "ryoshu",
+      "category": "人物",
+      "zh": "良秀",
+      "ja": "良秀",
+      "ko": "료슈",
+      "en": "Ryōshū",
+      "aliases": {
+        "en": [
+          "Ryoshu"
+        ]
+      },
+      "note": "文学人名及游戏写法；日语姓名原样使用汉字「良秀」。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Ryoshu",
+        "https://wikiwiki.jp/lcbwiki/良秀"
+      ]
+    },
+    {
+      "id": "meursault",
+      "category": "人物",
+      "zh": "默尔索",
+      "ja": "ムルソー",
+      "ko": "뫼르소",
+      "en": "Meursault",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Meursault",
+        "https://wikiwiki.jp/lcbwiki/ムルソー"
+      ]
+    },
+    {
+      "id": "hong-lu",
+      "category": "人物",
+      "zh": "鸿璐",
+      "ja": "ホンル",
+      "ko": "홍루",
+      "en": "Hong Lu",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Hong_Lu",
+        "https://wikiwiki.jp/lcbwiki/ホンル"
+      ]
+    },
+    {
+      "id": "heathcliff",
+      "category": "人物",
+      "zh": "希斯克利夫",
+      "ja": "ヒースクリフ",
+      "ko": "히스클리프",
+      "en": "Heathcliff",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Heathcliff",
+        "https://wikiwiki.jp/lcbwiki/ヒースクリフ"
+      ]
+    },
+    {
+      "id": "ishmael",
+      "category": "人物",
+      "zh": "以实玛利",
+      "ja": "イシュメール",
+      "ko": "이스마엘",
+      "en": "Ishmael",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Ishmael",
+        "https://wikiwiki.jp/lcbwiki/イシュメール"
+      ]
+    },
+    {
+      "id": "rodion",
+      "category": "人物",
+      "zh": "罗佳",
+      "ja": "ロージャ",
+      "ko": "로쟈",
+      "en": "Rodion",
+      "aliases": {
+        "en": [
+          "Rodya"
+        ]
+      },
+      "note": "中文采用常见称呼「罗佳」；英文本名为 Rodion，Rodya 为昵称。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Rodion",
+        "https://wikiwiki.jp/lcbwiki/ロージャ"
+      ]
+    },
+    {
+      "id": "sinclair",
+      "category": "人物",
+      "zh": "辛克莱",
+      "ja": "シンクレア",
+      "ko": "싱클레어",
+      "en": "Sinclair",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Sinclair",
+        "https://wikiwiki.jp/lcbwiki/シンクレア"
+      ]
+    },
+    {
+      "id": "outis",
+      "category": "人物",
+      "zh": "奥提斯",
+      "ja": "ウーティス",
+      "ko": "오티스",
+      "en": "Outis",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Outis",
+        "https://wikiwiki.jp/lcbwiki/ウーティス"
+      ]
+    },
+    {
+      "id": "gregor",
+      "category": "人物",
+      "zh": "格里高尔",
+      "ja": "グレゴール",
+      "ko": "그레고르",
+      "en": "Gregor",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Gregor",
+        "https://wikiwiki.jp/lcbwiki/グレゴール"
+      ]
+    },
+    {
+      "id": "dante",
+      "category": "人物",
+      "zh": "但丁",
+      "ja": "ダンテ",
+      "ko": "단테",
+      "en": "Dante",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Dante",
+        "https://wikiwiki.jp/lcbwiki/ダンテ"
+      ]
+    },
+    {
+      "id": "vergilius",
+      "category": "人物",
+      "zh": "维吉里乌斯",
+      "ja": "ヴェルギリウス",
+      "ko": "베르길리우스",
+      "en": "Vergilius",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Verg",
+        "https://wikiwiki.jp/lcbwiki/ヴェルギリウス"
+      ]
+    },
+    {
+      "id": "charon",
+      "category": "人物",
+      "zh": "卡戎",
+      "ja": "カロン",
+      "ko": "카론",
+      "en": "Charon",
+      "aliases": {},
+      "note": "根据人物原名整理，中文采用本项目选定的常见译名。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Charon",
+        "https://wikiwiki.jp/lcbwiki/カロン"
+      ]
+    },
+    {
+      "id": "jia-huan",
+      "category": "人物",
+      "zh": "贾环",
+      "ja": "ジア・ファン",
+      "ko": "가환",
+      "en": "Jia Huan",
+      "aliases": {
+        "ja": [
+          "ガファン"
+        ]
+      },
+      "note": "中文由维护者指定；日、韩、英对应写法据公开角色资料核对。兼容旧日语写法「ガファン」，反向翻译使用现名「ジア・ファン」。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Jia_Huan",
+        "https://wikiwiki.jp/lcbwiki/ジア・ファン"
+      ]
+    },
+    {
+      "id": "aseah",
+      "category": "人物",
+      "zh": "亚细亚",
+      "ja": "アセア",
+      "ko": "아세아",
+      "en": "Aseah",
+      "aliases": {},
+      "note": "中文由维护者指定；日、韩、英对应写法据公开角色资料核对。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Aseah",
+        "https://wikiwiki.jp/lcbwiki/アセア"
+      ]
+    },
+    {
+      "id": "gubo",
+      "category": "人物",
+      "zh": "仇甫",
+      "ja": "クボ",
+      "ko": "구보",
+      "en": "Gubo",
+      "aliases": {
+        "ja": [
+          "グボ"
+        ]
+      },
+      "note": "中文由维护者指定；日、韩、英对应写法据公开角色资料核对。日语采用现行攻略及第十章页面的「クボ」，兼容其他资料中的「グボ」。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Gubo",
+        "https://wikiwiki.jp/lcbwiki/クボ"
+      ]
+    },
+    {
+      "id": "nelly",
+      "category": "人物",
+      "zh": "耐莉",
+      "ja": "ネリー",
+      "ko": "넬리",
+      "en": "Nelly",
+      "aliases": {},
+      "note": "中文由维护者指定；日、韩、英对应写法据公开角色资料核对。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Nelly",
+        "https://wikiwiki.jp/lcbwiki/ネリー"
+      ]
+    },
+    {
+      "id": "ahab",
+      "category": "人物",
+      "zh": "亚哈",
+      "ja": "エイハブ",
+      "ko": "에이해브",
+      "en": "Ahab",
+      "aliases": {},
+      "note": "中文由维护者指定；日、韩、英对应写法据公开角色资料核对。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Ahab",
+        "https://wikiwiki.jp/lcbwiki/エイハブ"
+      ]
+    },
+    {
+      "id": "hermann",
+      "category": "人物",
+      "zh": "赫尔曼",
+      "ja": "ヘルマン",
+      "ko": "헤르만",
+      "en": "Hermann",
+      "aliases": {},
+      "note": "中文由维护者指定；日、韩、英对应写法据公开角色资料核对。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Hermann",
+        "https://wikiwiki.jp/lcbwiki/ヘルマン"
+      ]
+    },
+    {
+      "id": "dias",
+      "category": "人物",
+      "zh": "狄亚斯",
+      "ja": "ディアス",
+      "ko": "디아스",
+      "en": "Dias",
+      "aliases": {},
+      "note": "中文由维护者指定；日、韩、英对应写法据公开角色资料核对。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Dias",
+        "https://wikiwiki.jp/lcbwiki/ディアス"
+      ]
+    },
+    {
+      "id": "hohenheim",
+      "category": "人物",
+      "zh": "霍恩海姆",
+      "ja": "ホーエンハイム",
+      "ko": "호엔하임",
+      "en": "Hohenheim",
+      "aliases": {},
+      "note": "中文由维护者指定；日、韩、英对应写法据公开角色资料核对。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Hohenheim",
+        "https://wikiwiki.jp/lcbwiki/ホーエンハイム"
+      ]
+    },
+    {
+      "id": "sonya",
+      "category": "人物",
+      "zh": "索尼娅",
+      "ja": "ソーニャ",
+      "ko": "소냐",
+      "en": "Sonya",
+      "aliases": {},
+      "note": "中文采用本项目选用的音译；原名据公开人物资料核对。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Sonya"
+      ]
+    },
+    {
+      "id": "red-gaze",
+      "category": "色彩相关称号",
+      "zh": "猩红凝视",
+      "ja": "赤い視線",
+      "ko": "붉은시선",
+      "en": "The Red Gaze",
+      "aliases": {
+        "en": [
+          "Red Gaze"
+        ]
+      },
+      "note": "称号单独收录，不替换为人物姓名。中文也有「殷红凝视」等写法，本库统一为「猩红凝视」。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Verg",
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "red-mist",
+      "category": "色彩相关称号",
+      "zh": "殷红迷雾",
+      "ja": "赤い霧",
+      "ko": "붉은안개",
+      "en": "The Red Mist",
+      "aliases": {
+        "en": [
+          "Red Mist"
+        ]
+      },
+      "note": "称号单独收录，不替换为人物姓名。中文采用本库选定的常见译法。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Red_Mist",
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "blue-reverberation",
+      "category": "色彩相关称号",
+      "zh": "苍蓝残响",
+      "ja": "青い残響",
+      "ko": "푸른잔향",
+      "en": "The Blue Reverberation",
+      "aliases": {
+        "en": [
+          "Blue Reverberation"
+        ]
+      },
+      "note": "称号单独收录，不替换为人物姓名。中文采用本库选定的常见译法。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Blue_Reverberation",
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "black-silence",
+      "category": "色彩相关称号",
+      "zh": "漆黑噤默",
+      "ja": "黒い沈黙",
+      "ko": "검은침묵",
+      "en": "The Black Silence",
+      "aliases": {
+        "en": [
+          "Black Silence"
+        ]
+      },
+      "note": "称号单独收录，不替换为人物姓名。中文采用本库选定的常见译法。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Black_Silence",
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "purple-tear",
+      "category": "色彩相关称号",
+      "zh": "堇紫泪滴",
+      "ja": "紫の涙",
+      "ko": "보라눈물",
+      "en": "The Purple Tear",
+      "aliases": {
+        "en": [
+          "Purple Tear"
+        ]
+      },
+      "note": "称号单独收录，不替换为人物姓名。中文采用本库选定的常见译法。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Purple_Tear",
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "indigo-elder",
+      "category": "色彩相关称号",
+      "zh": "靛蓝老者",
+      "ja": "藍色の老人",
+      "ko": "쪽빛노인",
+      "en": "The Indigo Elder",
+      "aliases": {
+        "en": [
+          "Indigo Elder"
+        ]
+      },
+      "note": "称号单独收录，不替换为人物姓名。中文采用本库选定的常见译法。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/The_Indigo_Elder",
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "vermilion-cross",
+      "category": "色彩相关称号",
+      "zh": "朱红十字",
+      "ja": "朱色の十字",
+      "ko": "주홍십자",
+      "en": "The Vermilion Cross",
+      "aliases": {
+        "en": [
+          "Vermilion Cross"
+        ]
+      },
+      "note": "称号单独收录，不替换为人物姓名。中文采用本库选定的常见译法。",
+      "sources": [
+        "https://tiphereth.zasz.su/keypages/1308021/",
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "yellow-harpoon",
+      "category": "色彩相关称号",
+      "zh": "蜜黄标枪",
+      "ja": "黄色い銛",
+      "ko": "노란작살",
+      "en": "The Yellow Harpoon",
+      "aliases": {
+        "en": [
+          "Yellow Harpoon"
+        ]
+      },
+      "note": "称号单独收录，不替换为人物姓名。中文存在「黄色鱼叉」等直译，本库选用「蜜黄标枪」。条目只对齐称呼，不据此推断授衔时间或身份。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/Vespa",
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "manager",
+      "category": "称呼与缩写",
+      "zh": "管理人",
+      "ja": "管理人",
+      "ko": "관리자",
+      "en": "Manager",
+      "aliases": {},
+      "note": "按角色职责直译；日语原文经维护者提供的游戏画面核对。",
+      "sources": [
+        "https://limbuscompany.com/"
+      ]
+    },
+    {
+      "id": "ego",
+      "category": "称呼与缩写",
+      "zh": "E.G.O",
+      "ja": "E.G.O",
+      "ko": "E.G.O",
+      "en": "E.G.O",
+      "aliases": {
+        "ko": [
+          "에고"
+        ]
+      },
+      "note": "保留游戏缩写；兼容韩文音译「에고」。",
+      "sources": [
+        "https://limbuscompany.com/"
+      ]
+    },
+    {
+      "id": "limbus-company",
+      "category": "组织",
+      "zh": "边狱公司",
+      "ja": "リンバスカンパニー",
+      "ko": "림버스 컴퍼니",
+      "en": "Limbus Company",
+      "aliases": {},
+      "note": "保留公司名称与游戏标题的区别；本条为组织名称。",
+      "sources": [
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "n-corp",
+      "category": "组织",
+      "zh": "N公司",
+      "ja": "N社",
+      "ko": "N사",
+      "en": "N Corp.",
+      "aliases": {
+        "en": [
+          "N Corp"
+        ]
+      },
+      "note": "保留字母 N，按公司简称直译；兼容缺省句点的英文。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/N_Corp.",
+        "https://wikiwiki.jp/lcbwiki/Wiki管理/世界観/都市"
+      ]
+    },
+    {
+      "id": "new-league-nine",
+      "category": "组织",
+      "zh": "新九人会",
+      "ja": "新九人会",
+      "ko": "신구인회",
+      "en": "New League of Nine Littérateurs",
+      "aliases": {
+        "en": [
+          "New League of Nine",
+          "New League of Nine Litterateurs"
+        ]
+      },
+      "note": "按组织原名直译；兼容不带变音符号的英文拼写及简称。",
+      "sources": [
+        "https://wikiwiki.jp/lcbwiki/一覧表/ゲーム内用語言語別一覧"
+      ]
+    },
+    {
+      "id": "city",
+      "category": "地名",
+      "zh": "都市",
+      "ja": "都市",
+      "ko": "도시",
+      "en": "The City",
+      "aliases": {
+        "en": [
+          "City"
+        ]
+      },
+      "note": "仅用于《边狱巴士》游戏档案的地理称呼；中文由本项目选定，不扩展为普通文章的通用替换规则。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/The_City",
+        "https://wikiwiki.jp/lcbwiki/Wiki管理/世界観/都市"
+      ]
+    },
+    {
+      "id": "great-lake",
+      "category": "地名",
+      "zh": "大湖",
+      "ja": "大湖",
+      "ko": "대호수",
+      "en": "The Great Lake",
+      "aliases": {
+        "en": [
+          "Great Lake"
+        ]
+      },
+      "note": "仅用于《边狱巴士》游戏档案的地理称呼；中文由本项目选定，不扩展为普通文章的通用替换规则。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/The_Great_Lake",
+        "https://wikiwiki.jp/lcbwiki/Wiki管理/世界観/都市"
+      ]
+    },
+    {
+      "id": "outskirts",
+      "category": "地名",
+      "zh": "郊区",
+      "ja": "外郭",
+      "ko": "외곽",
+      "en": "The Outskirts",
+      "aliases": {
+        "en": [
+          "Outskirts"
+        ]
+      },
+      "note": "仅用于《边狱巴士》游戏档案的地理称呼；中文由本项目选定，不扩展为普通文章的通用替换规则。",
+      "sources": [
+        "https://limbuscompany.wiki.gg/wiki/The_Outskirts",
+        "https://wikiwiki.jp/lcbwiki/Wiki管理/世界観/都市"
+      ]
+    }
+  ]
+}
