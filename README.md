@@ -10,7 +10,7 @@
 
 ![主界面](assets/screenshot-main.png)
 
-截图来自实际 WPF 界面，窗口与台词为合成示例。主界面与悬浮球菜单共用深色、橙色配色。
+截图来自 1.7.1 的实际 WPF 界面，窗口与台词为合成示例。主界面与悬浮球菜单共用深色、橙色配色。
 
 <img src="assets/screenshot-navigation.png" alt="悬浮球快捷导航" width="288" />
 
