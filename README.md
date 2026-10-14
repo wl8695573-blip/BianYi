@@ -6,7 +6,7 @@
 
 **当前版本：边译 1.7.0。** 沿用原仓库和旧用户设置，程序输出改为 `BianYi.exe`。
 
-[下载](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/latest) · [使用说明](docs/USAGE.md) · [更新记录](CHANGELOG.md) · [问题反馈](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new/choose)
+[下载](https://github.com/wl8695573-blip/BianYi/releases/latest) · [使用说明](docs/USAGE.md) · [更新记录](CHANGELOG.md) · [问题反馈](https://github.com/wl8695573-blip/BianYi/issues/new/choose)
 
 ![主界面](assets/screenshot-main.png)
 
@@ -20,11 +20,13 @@
 
 | 文件 | 用途 |
 |---|---|
-| [BianYi-Setup-1.7.0.exe](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.7.0/BianYi-Setup-1.7.0.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
-| [BianYi-win-x64-1.7.0.zip](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.7.0/BianYi-win-x64-1.7.0.zip) | 便携版，完整解压后运行 `BianYi/BianYi.exe`，保留同目录的 DLL、模型及词库。 |
-| [SHA256SUMS-1.7.0.txt](https://github.com/wl8695573-blip/GuGuGaGaTranslator/releases/download/v1.7.0/SHA256SUMS-1.7.0.txt) | 安装版和便携版的 SHA256 校验值。 |
+| [BianYi-Setup-1.7.0.exe](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.0/BianYi-Setup-1.7.0.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
+| [BianYi-win-x64-1.7.0.zip](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.0/BianYi-win-x64-1.7.0.zip) | 便携版，完整解压后运行 `BianYi/BianYi.exe`，保留同目录的 DLL、模型及词库。 |
+| [SHA256SUMS-1.7.0.txt](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.0/SHA256SUMS-1.7.0.txt) | 安装版和便携版的 SHA256 校验值。 |
 
 新安装请选择空目录；升级时先退出旧程序，再安装到原来已登记的目录。便携版解压到新目录，避免混用旧文件。默认沿用 `%APPDATA%\GuGuGaGaTranslator`，保留已有设置、密钥和个人术语；1.6.1 可在“支持”页迁移到其他磁盘。
+
+仓库现名为 `BianYi`，原 `GuGuGaGaTranslator` 地址会跳转到此处。已发布的旧版程序可能因更新地址校验而无法自动下载安装包；遇到此情况，请使用上方下载链接手动升级。新版源码已兼容新旧仓库地址。
 
 发行文件尚未进行代码签名。遇到 Windows 发布者提示时，请确认来自本仓库 Release 并核对 SHA256。GitHub 的 “Source code” 压缩包是源码，不能直接运行。
 
@@ -66,7 +68,7 @@
 
 公共词库可手动应用，或勾选自动应用。程序更新需要手动下载并启动安装器。两种下载都会校验 SHA256；失败时保留现有内容。新版安装包也包含发布时的公共词库。
 
-维护者通过 [公共词库目录](terminology/) 定期整理反馈。用户可提交 [术语补充／纠错](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml)，由维护者核对后发布。提交方法见 [贡献说明](CONTRIBUTING.md)。请提供自行翻译或允许公开分发的内容，注明出处和使用条件。
+维护者通过 [公共词库目录](terminology/) 定期整理反馈。用户可提交 [术语补充／纠错](https://github.com/wl8695573-blip/BianYi/issues/new?template=terminology.yml)，由维护者核对后发布。提交方法见 [贡献说明](CONTRIBUTING.md)。请提供自行翻译或允许公开分发的内容，注明出处和使用条件。
 
 独立词库的 [来源与收录说明](terminology/sources/library/) 位于仓库中，后续收到的资料逐条标注来源。1.7.0 移除旧公共集合，替换未修改的历史内置条目；个人译名、禁用设置和自行添加的术语继续保留。收录后的词库随发行包附带，现有用户通过词库更新获取。
 

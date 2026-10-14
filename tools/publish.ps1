@@ -1,6 +1,6 @@
 ﻿[CmdletBinding()]
 param(
-    [string] $Repo = 'wl8695573-blip/GuGuGaGaTranslator',
+    [string] $Repo = 'wl8695573-blip/BianYi',
     [string] $NotesFile = '',
     [switch] $SkipPush
 )

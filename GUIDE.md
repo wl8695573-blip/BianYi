@@ -9,8 +9,8 @@
 需要 Windows 10 2004（19041）或更高版本和 .NET 10 SDK。`models/v6` 与 `models/korean` 的模型及字典已提交到仓库，完整克隆后即可构建。
 
 ```powershell
-git clone https://github.com/wl8695573-blip/GuGuGaGaTranslator.git
-cd GuGuGaGaTranslator
+git clone https://github.com/wl8695573-blip/BianYi.git
+cd BianYi
 .\build.ps1 -Configuration Debug
 .\src\GuGuGaGaTranslator.App\bin\Debug\net10.0-windows10.0.19041.0\BianYi.exe
 ```

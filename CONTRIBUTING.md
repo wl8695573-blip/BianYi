@@ -4,8 +4,8 @@
 
 ## 怎么提交
 
-1. 登录 GitHub，先在 [Issues](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues) 搜索词语，看看是否已有相同反馈；有的话可直接在原帖补充。
-2. 打开 [术语补充／纠错表单](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml)。也可以从项目的 **Issues → New issue → 术语补充／纠错** 进入。
+1. 登录 GitHub，先在 [Issues](https://github.com/wl8695573-blip/BianYi/issues) 搜索词语，看看是否已有相同反馈；有的话可直接在原帖补充。
+2. 打开 [术语补充／纠错表单](https://github.com/wl8695573-blip/BianYi/issues/new?template=terminology.yml)。也可以从项目的 **Issues → New issue → 术语补充／纠错** 进入。
 3. 将标题写成 `[术语] 边狱巴士：词语名称`，填写游戏名称、英文、日文、韩文或中文原文、建议中文译名及出处。纠错时可附当前错误译名。
 4. 截图可以拖入“出处、说明或截图”输入框。剧情截图请注明剧透章节；没有截图也可以填写章节、场景或参考链接。
 5. 点击 **Submit new issue** 提交。之后可在这条 Issue 下补充资料、查看维护者回复。
@@ -44,4 +44,4 @@
 
 边译 主界面右上“术语反馈”可打开同一表单。首次提供新版档案时，请注明需要 边译 1.4.0 或更高版本。
 
-软件崩溃、无法抓屏或安装失败等问题，请使用 [问题反馈表单](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=bug.yml)。
+软件崩溃、无法抓屏或安装失败等问题，请使用 [问题反馈表单](https://github.com/wl8695573-blip/BianYi/issues/new?template=bug.yml)。

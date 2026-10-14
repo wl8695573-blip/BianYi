@@ -9,7 +9,7 @@
 | [公共词库](limbus-company.ggprofile.json) | 已发布、随程序附带的术语。 |
 | [更新清单](manifest.json) | 客户端核对的词库版本与 SHA256。 |
 | [术语库来源与收录](sources/library/) | 独立基础库的整理依据与后续候选资料。 |
-| [术语反馈表单](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml) | 用户向维护者提交补充和纠错。 |
+| [术语反馈表单](https://github.com/wl8695573-blip/BianYi/issues/new?template=terminology.yml) | 用户向维护者提交补充和纠错。 |
 
 GitHub 用版本管理保存 JSON 词库，客户端直接下载公开数据，无需另设数据库服务器。来源资料的整理与授权记录见 [收录说明](sources/README.md)。
 

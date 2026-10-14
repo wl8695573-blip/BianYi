@@ -12,8 +12,15 @@ public sealed record AppUpdate(string Version, Uri Page, Uri Installer, Uri Chec
 /// <summary>只读取维护者仓库的公开更新数据，不发送用户配置或密钥。</summary>
 public sealed class UpdateClient
 {
-    public const string Repository = "wl8695573-blip/GuGuGaGaTranslator";
+    public const string Repository = "wl8695573-blip/BianYi";
+    private const string LegacyRepository = "wl8695573-blip/GuGuGaGaTranslator";
     public const string RawRoot = "https://raw.githubusercontent.com/" + Repository + "/main/terminology/";
+    private static bool IsOfficialTerms(Uri uri) =>
+        uri.AbsoluteUri.StartsWith(RawRoot, StringComparison.Ordinal)
+        || uri.AbsoluteUri.StartsWith("https://raw.githubusercontent.com/" + LegacyRepository + "/main/terminology/", StringComparison.Ordinal);
+    private static bool IsOfficialDownload(Uri uri) =>
+        uri.AbsoluteUri.StartsWith("https://github.com/" + Repository + "/releases/download/", StringComparison.Ordinal)
+        || uri.AbsoluteUri.StartsWith("https://github.com/" + LegacyRepository + "/releases/download/", StringComparison.Ordinal);
     private static readonly HttpClient SharedHttp = CreateClient();
     private readonly HttpClient Http;
     public UpdateClient(HttpClient? client = null) => Http = client ?? SharedHttp;
@@ -44,7 +51,7 @@ public sealed class UpdateClient
 
     public async Task<Translation.GameProfile> DownloadTermsAsync(TermUpdate update, CancellationToken cancellationToken)
     {
-        if (!update.Url.AbsoluteUri.StartsWith(RawRoot, StringComparison.Ordinal)) throw new InvalidDataException("术语来源不受支持。");
+        if (!IsOfficialTerms(update.Url)) throw new InvalidDataException("术语来源不受支持。");
         var bytes = await ReadAsync(update.Url, 1024 * 1024, cancellationToken).ConfigureAwait(false);
         if (!Convert.ToHexString(SHA256.HashData(bytes)).Equals(update.Sha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("术语库校验失败，未修改已有词库。");
@@ -70,7 +77,7 @@ public sealed class UpdateClient
             var assetName = asset.GetProperty("name").GetString();
             if (assetName != canonicalName && assetName != legacyName && assetName != $"SHA256SUMS-{version}.txt") continue;
             var uri = new Uri(asset.GetProperty("browser_download_url").GetString()!);
-            if (!uri.AbsoluteUri.StartsWith("https://github.com/" + Repository + "/releases/download/", StringComparison.Ordinal))
+            if (!IsOfficialDownload(uri))
                 throw new InvalidDataException("安装包来源不受支持。");
             if (assetName == canonicalName || assetName == legacyName)
             {
@@ -88,9 +95,7 @@ public sealed class UpdateClient
 
     public async Task DownloadInstallerAsync(AppUpdate update, string destination, CancellationToken cancellationToken)
     {
-        var prefix = "https://github.com/" + Repository + "/releases/download/";
-        if (!update.Installer.AbsoluteUri.StartsWith(prefix, StringComparison.Ordinal)
-            || !update.Checksums.AbsoluteUri.StartsWith(prefix, StringComparison.Ordinal))
+        if (!IsOfficialDownload(update.Installer) || !IsOfficialDownload(update.Checksums))
             throw new InvalidDataException("安装包来源不受支持。");
         var checksumText = Encoding.ASCII.GetString(await ReadAsync(update.Checksums, 64 * 1024, cancellationToken).ConfigureAwait(false));
         var expected = checksumText.Split('\n').Select(line => line.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries))

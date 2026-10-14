@@ -1566,7 +1566,7 @@ public partial class MainWindow : Window
     private async void OnQuickEnglish(object sender, RoutedEventArgs e) => await QuickDirectionAsync("en", "en-US");
     private async void OnQuickJapanese(object sender, RoutedEventArgs e) => await QuickDirectionAsync("ja", "ja");
     private void OnOpenProfilesTab(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 2;
-    private void OnTermFeedback(object sender, RoutedEventArgs e) => OpenExternal("https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml", "术语反馈表单");
+    private void OnTermFeedback(object sender, RoutedEventArgs e) => OpenExternal("https://github.com/wl8695573-blip/BianYi/issues/new?template=terminology.yml", "术语反馈表单");
     private void OnRetryCurrent(object sender, RoutedEventArgs e)
     {
         if (_session.Pipeline is not { IsRunning: true } pipeline)

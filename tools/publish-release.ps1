@@ -2,7 +2,7 @@
 param([switch]$Publish, [switch]$WithdrawLegacyReleases)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$repo = 'wl8695573-blip/GuGuGaGaTranslator'
+$repo = 'wl8695573-blip/BianYi'
 [xml]$props = Get-Content -LiteralPath (Join-Path $root 'Directory.Build.props') -Encoding UTF8
 $version = [string]$props.Project.PropertyGroup.Version
 if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid release version' }

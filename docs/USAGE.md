@@ -180,7 +180,7 @@ Sakura-GalTransl 主要用于日译中，选择 `sakura` 指令格式；通用�
 
 内置《边狱巴士》档案以零协会汉化为参考，包含英文和日文术语。使用前请核对游戏版本和译名。
 
-发现缺少的术语或错误译名，可填写 [术语补充／纠错表单](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml)，提供原文、建议译名和出处，由维护者核对后整理。提交步骤见 [术语贡献说明](../CONTRIBUTING.md)。修改本机术语不会自动提交到 GitHub。边译 1.5.0 可在“支持”页检查并应用维护者发布的公共词库；自动应用需自行开启。
+发现缺少的术语或错误译名，可填写 [术语补充／纠错表单](https://github.com/wl8695573-blip/BianYi/issues/new?template=terminology.yml)，提供原文、建议译名和出处，由维护者核对后整理。提交步骤见 [术语贡献说明](../CONTRIBUTING.md)。修改本机术语不会自动提交到 GitHub。边译 1.5.0 可在“支持”页检查并应用维护者发布的公共词库；自动应用需自行开启。
 
 ```text
 en: Outis = 奥提斯 | 禁止: 奥德修斯、奥蒂斯
@@ -291,4 +291,4 @@ AI 引擎将术语和作品设定加入请求，随后可进行本机替换校�
 5. **选区偏移：** 改变布局、分辨率或显示器后重新框选。
 6. **无法启动或下载被拦截：** 确认 Windows x64 系统和文件完整性，核对 SHA256，保留系统提示内容。
 
-仍无法解决时，在 [Issues](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new/choose) 填写应用和 Windows 版本、窗口模式、缩放、引擎及复现步骤，可附诊断 ZIP。截图遮盖私人内容，不要附密钥、配置、缓存数据库或完整抓屏目录。
+仍无法解决时，在 [Issues](https://github.com/wl8695573-blip/BianYi/issues/new/choose) 填写应用和 Windows 版本、窗口模式、缩放、引擎及复现步骤，可附诊断 ZIP。截图遮盖私人内容，不要附密钥、配置、缓存数据库或完整抓屏目录。

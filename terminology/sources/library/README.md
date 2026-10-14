@@ -62,4 +62,4 @@
 
 - **现有用户：** 在 边译“支持”页检查并应用词库更新；勾选自动应用的用户在检查到更新后自动应用。
 - **新下载用户：** 新版安装包或便携包自带打包时的词库，无需手动导入。已发布的旧安装包不会随 GitHub 文件变化而改写，其中的用户仍需检查更新。
-- **提交者：** 通过 [术语反馈表单](https://github.com/wl8695573-blip/GuGuGaGaTranslator/issues/new?template=terminology.yml) 提交补充或纠错，由维护者确认并发布。
+- **提交者：** 通过 [术语反馈表单](https://github.com/wl8695573-blip/BianYi/issues/new?template=terminology.yml) 提交补充或纠错，由维护者确认并发布。
