@@ -86,7 +86,7 @@ internal static class Program
             Render((FrameworkElement)floatingBall.Content, 88, 40, Path.Combine(output, "screenshot-floating-ball.png"), 3);
             var navigationBall = new FloatingBallWindow(new FloatingBallConfig(), new[]
             {
-                "打开主界面", "开始翻译", "暂停 / 继续", "停止翻译", "手动框选字幕", "切换翻译方向",
+                "打开主界面", "开始翻译", "暂停 / 继续", "停止翻译", "手动框选字幕", "重置框选", "切换翻译方向",
                 "添加 / 编辑术语", "移动译文 / 鼠标穿透", "服务设置", "程序 / 词库更新", "关闭悬浮球"
             }.Select(label => (label, (Action)(() => { }))));
             var navigation = (ContextMenu)typeof(FloatingBallWindow).GetField("_menu", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(navigationBall)!;

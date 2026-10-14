@@ -6,9 +6,10 @@ public static class DialogueFields
         structured || title.Length > 0 || name.Length > 0
             ? $"称号：{title}\n姓名：{name}\n正文：{body}" : body;
 
-    public static string Header(string title, string name) => Join(title, name);
+    public static string Header(string title, string name) =>
+        string.Join("｜", new[] { title, name }.Select(value => value.Trim()).Where(value => value.Length > 0));
 
-    public static string Translated(string title, string name, string body) => Join(title, name, body);
+    public static string Translated(string title, string name, string body) => Join(Header(title, name), body);
 
     private static string Join(params string[] values) =>
         string.Join("\n", values.Select(s => s.Trim()).Where(s => s.Length > 0));

@@ -191,35 +191,56 @@ public sealed partial class AppSession : IAsyncDisposable
     /// follow a window that moves.</summary>
     public Int32Rect? ResolveRegion()
     {
-        if (Config.Target.Region is not { } local || !local.IsUsable)
-            return null;
-
         var window = FindTarget();
         if (window is null || window.IsMinimized || !window.HasClientArea)
             return null;
 
         var client = window.ClientRect;
-        return TargetRegionResolver.Resolve(local, client, Config.Target.ReferenceClientWidth, Config.Target.ReferenceClientHeight);
+        return Config.Target.Region is { IsUsable: true } local
+            ? TargetRegionResolver.Resolve(local, client, Config.Target.ReferenceClientWidth, Config.Target.ReferenceClientHeight)
+            : UsesAutomaticDialogue(window) ? AutomaticDialogueArea(client, "body") : null;
     }
 
     public Int32Rect? ResolveSpeakerRegion()
     {
         var target = Config.Target;
         var window = FindTarget();
+        if (window is not null && UsesAutomaticDialogue(window)) return null;
         return target.SpeakerRegion is { IsUsable: true } local && window is { IsMinimized: false, HasClientArea: true }
             ? TargetRegionResolver.Resolve(local, window.ClientRect, target.SpeakerReferenceWidth, target.SpeakerReferenceHeight)
             : null;
     }
 
     public Int32Rect? ResolveTitleRegion() => ResolveRoleRegion(Config.Target.TitleRegion,
-        Config.Target.TitleReferenceWidth, Config.Target.TitleReferenceHeight);
+        Config.Target.TitleReferenceWidth, Config.Target.TitleReferenceHeight, "title");
 
     public Int32Rect? ResolveNameRegion() => ResolveRoleRegion(Config.Target.NameRegion,
-        Config.Target.NameReferenceWidth, Config.Target.NameReferenceHeight);
+        Config.Target.NameReferenceWidth, Config.Target.NameReferenceHeight, "name");
 
-    private Int32Rect? ResolveRoleRegion(RegionRect? region, int width, int height) =>
-        region is { IsUsable: true } local && FindTarget() is { IsMinimized: false, HasClientArea: true } window
+    private Int32Rect? ResolveRoleRegion(RegionRect? region, int width, int height, string field)
+    {
+        if (FindTarget() is not { IsMinimized: false, HasClientArea: true } window) return null;
+        if (UsesAutomaticDialogue(window)) return AutomaticDialogueArea(window.ClientRect, field);
+        return region is { IsUsable: true } local
             ? TargetRegionResolver.Resolve(local, window.ClientRect, width, height) : null;
+    }
+
+    public static bool UsesAutomaticDialogue(WindowInfo window) =>
+        window.ProcessName.Equals("LimbusCompany", StringComparison.OrdinalIgnoreCase);
+
+    // 默认剧情布局仅在捕获时计算，不写入用户选区，避免“重置”后又保存出一组旧框。
+    private static Int32Rect? AutomaticDialogueArea(Int32Rect client, string field)
+    {
+        if (client.Width < 80 || client.Height < 80) return null;
+        var (x, y, width, height) = field switch
+        {
+            "title" => (0d, .70, .18, .07),
+            "name" => (0d, .77, .18, .10),
+            _ => (.19, .79, .75, .16)
+        };
+        return new Int32Rect(client.X + (int)(client.Width * x), client.Y + (int)(client.Height * y),
+            Math.Max(1, (int)(client.Width * width)), Math.Max(1, (int)(client.Height * height)));
+    }
 
     public void SetRoleRegion(WindowInfo window, Int32Rect selection, bool name)
     {
@@ -349,10 +370,15 @@ public sealed partial class AppSession : IAsyncDisposable
 
     public void ClearRegion()
     {
-        ForgetContext();
         Config.Target.Region = null;
+        Config.Target.TitleRegion = Config.Target.NameRegion = Config.Target.SpeakerRegion = null;
+        Config.Target.TitleReferenceWidth = Config.Target.TitleReferenceHeight = 0;
+        Config.Target.NameReferenceWidth = Config.Target.NameReferenceHeight = 0;
+        Config.Target.SpeakerReferenceWidth = Config.Target.SpeakerReferenceHeight = 0;
         Config.Target.ManualRegion = false;
         Config.Target.ReferenceClientWidth = Config.Target.ReferenceClientHeight = 0;
+        RememberTargetSettings();
+        ForgetContext();
     }
 
     /// <summary>Start the translation loop, rebuilding the recognizer, translator, and dumper from the current configuration.</summary>
@@ -373,7 +399,7 @@ public sealed partial class AppSession : IAsyncDisposable
             previousTranslator.Dispose();
         _translator = null;
 
-        if (Config.Target.Region is null)
+        if (Config.Target.Region is null && ResolveRegion() is null)
         {
             Notice?.Invoke("还没有框选区域:先选一个窗口,再点「框选区域」。");
             return;

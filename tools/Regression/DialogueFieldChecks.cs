@@ -36,7 +36,7 @@ internal static class DialogueFieldChecks
         var parsed = DialogueFields.LegacySpeaker(normalized);
         Program.Check(parsed == ("管理人", "グンテ"), "fields: legacy separator after NFKC normalization");
         Program.Check(OcrCorrections.Apply(parsed.Name, "ja", "limbus-company", "name", rules) == "ダンテ", "fields: legacy name corrected after split");
-        Program.Check(DialogueFields.Translated("管理人", "但丁", "测试台词") == "管理人\n但丁\n测试台词", "fields: translation keeps content without labels");
+        Program.Check(DialogueFields.Translated("管理人", "但丁", "测试台词") == "管理人｜但丁\n测试台词", "fields: translation groups role header without labels");
         Program.Check(DialogueFields.Translated("", "但丁", "测试台词") == "但丁\n测试台词", "fields: translation omits empty role rows");
         Program.Check(DialogueFields.Translated("", "", "网页正文") == "网页正文", "fields: plain translated output has no labels");
 

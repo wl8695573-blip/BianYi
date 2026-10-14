@@ -92,22 +92,14 @@
                  TextWrapping="Wrap" Text="尚未选择窗口" />
       <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,6,0,4">
         <Button x:Name="RefreshButton" Content="刷新列表" Click="OnRefreshWindows" />
-        <Button x:Name="RegionButton" Content="框选正文" Click="OnPickRegion" />
+        <Button x:Name="RegionButton" Content="框选区域" Click="OnPickRegion"
+                ToolTip="手动选择对话区域。选区随窗口移动和缩放，并保存用于后续翻译" />
       </UniformGrid>
-      <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,0,0,4">
-        <Button Content="框选称号" Click="OnPickTitle" ToolTip="仅框住角色称号，例如管理人" />
-        <Button Content="框选姓名" Click="OnPickName" ToolTip="仅框住角色姓名，例如ダンテ" />
-      </UniformGrid>
-      <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,0,0,4">
-        <Button Content="清除称号" Click="OnClearTitle" />
-        <Button Content="清除姓名" Click="OnClearName" />
-      </UniformGrid>
-      <TextBlock x:Name="SpeakerRegionSummary" DockPanel.Dock="Top" Text="称号：未设置&#x0a;姓名：未设置"
-                 TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,4" />
       <UniformGrid DockPanel.Dock="Top" Columns="2" Margin="0,0,0,8">
         <Button x:Name="BottomStripButton" Content="底部字幕 ▾" Click="OnBottomOptions"
                 ToolTip="选择手动框选或自动预设。手动选区会保存并用于后续翻译" />
-        <Button x:Name="ClearRegionButton" Content="清除区域" Click="OnClearRegion" />
+        <Button x:Name="ClearRegionButton" Content="重置框选" Click="OnClearRegion"
+                ToolTip="清除当前窗口已保存的正文、称号和姓名选区，恢复自动定位；保留语言、术语和服务设置" />
       </UniformGrid>
       <CheckBox x:Name="HideOwnWindowsCheck" DockPanel.Dock="Top" Margin="0,0,0,8"
                 Content="框选时隐藏翻译界面(推荐)"

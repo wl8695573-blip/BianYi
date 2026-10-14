@@ -745,7 +745,7 @@ public partial class MainWindow : Window
         if (WindowList.SelectedItem is WindowInfo window)
         {
             _targetSelections++;
-            StartButton.IsEnabled = RegionButton.IsEnabled = BottomStripButton.IsEnabled = false;
+            StartButton.IsEnabled = RegionButton.IsEnabled = BottomStripButton.IsEnabled = ClearRegionButton.IsEnabled = false;
             try
             {
                 var changed = _session.Config.Target.Identity != window.Identity;
@@ -769,7 +769,7 @@ public partial class MainWindow : Window
             finally
             {
                 _targetSelections--;
-                StartButton.IsEnabled = RegionButton.IsEnabled = BottomStripButton.IsEnabled = _targetSelections == 0;
+                StartButton.IsEnabled = RegionButton.IsEnabled = BottomStripButton.IsEnabled = ClearRegionButton.IsEnabled = _targetSelections == 0;
             }
         }
     }
@@ -792,7 +792,6 @@ public partial class MainWindow : Window
 
     private void UpdateTargetSummary()
     {
-        UpdateSpeakerSummary();
         UpdateRunSummary();
         var target = WindowList.SelectedItem as WindowInfo;
         var region = _session.Config.Target.Region;
@@ -801,7 +800,9 @@ public partial class MainWindow : Window
         {
             TargetSummary.Text = region is { IsUsable: true } selected
                 ? $"已选:{target.Title}\n区域(相对客户区):{selected}"
-                : $"已选:{target.Title}\n点击「框选区域」划出要翻译的部分";
+                : AppSession.UsesAutomaticDialogue(target)
+                    ? $"已选:{target.Title}\n自动定位对话区域，人物信息自动分行显示"
+                    : $"已选:{target.Title}\n点击「框选区域」划出要翻译的部分";
             return;
         }
 
@@ -824,7 +825,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Frame a region for a target and translate it; shared by the button and the hotkey.</summary>
-    private void PickRegionFor(WindowInfo target, string field = "body")
+    private void PickRegionFor(WindowInfo target)
     {
         // 和微信截图一样:框选时把自己的窗口收起来,免得控制窗口、翻译框和语言条压在要框的东西上。
         // 关掉这个选项时什么也不藏,方便对照着原来的界面框。
@@ -852,16 +853,9 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (field != "body") _session.SetRoleRegion(target, region.Value, name: field == "name");
-        else _session.SetRegion(target, region.Value);
+        _session.SetRegion(target, region.Value);
         _session.SaveConfig();
         UpdateTargetSummary();
-        UpdateSpeakerSummary();
-        if (field != "body")
-        {
-            OnNotice(field == "name" ? "已保存姓名区域。" : "已保存称号区域。");
-            return;
-        }
 
         // Keep the current pipeline running when only the selected region changes.
         if (!_session.IsRunning)
@@ -906,10 +900,21 @@ public partial class MainWindow : Window
 
     private void OnClearRegion(object sender, RoutedEventArgs e)
     {
+        if (_targetSelections > 0) return;
         _session.ClearRegion();
-        _session.SaveConfig();
+        SourceBox.Clear();
+        TranslationBox.Clear();
+        _overlay?.ClearText();
         UpdateTargetSummary();
-        OnNotice("已清除字幕区域，保留当前窗口与语言设置。请重新框选。");
+        try { _session.SaveConfig(); }
+        catch (Exception)
+        {
+            OnNotice("本次框选已重置，但保存失败。请检查数据目录空间和权限，重启后旧选区可能恢复。");
+            return;
+        }
+        OnNotice(_session.ResolveRegion() is not null
+            ? "已重置当前窗口的全部框选，恢复自动定位。"
+            : "已重置当前窗口的全部框选，请重新框选，或使用底部字幕预设。");
     }
 
     private async void OnStart(object sender, RoutedEventArgs e)
@@ -1129,14 +1134,9 @@ public partial class MainWindow : Window
 
         if (target.ProcessName.Equals("LimbusCompany", StringComparison.OrdinalIgnoreCase))
         {
-            _session.SetRegion(target, new Int32Rect(client.X + (int)(client.Width * .19), client.Y + (int)(client.Height * .79),
-                (int)(client.Width * .75), (int)(client.Height * .16)), manual: false);
-            _session.SetRoleRegion(target, new Int32Rect(client.X, client.Y + (int)(client.Height * .70),
-                (int)(client.Width * .18), (int)(client.Height * .07)), name: false);
-            _session.SetRoleRegion(target, new Int32Rect(client.X, client.Y + (int)(client.Height * .77),
-                (int)(client.Width * .18), (int)(client.Height * .10)), name: true);
+            _session.ClearRegion();
             _session.SaveConfig(); UpdateTargetSummary();
-            OnNotice("已设置称号、姓名和正文区域；如位置不同，请分别手动框选。");
+            OnNotice("已恢复自动定位对话区域，人物信息自动分行显示。");
             return;
         }
 

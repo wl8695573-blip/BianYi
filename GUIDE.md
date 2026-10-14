@@ -27,6 +27,8 @@ cd BianYi
 
 GitHub 仓库改名时保留原仓库及历史，不重新建立空仓库；改名后同步 Git remote、文档链接和发布脚本的仓库参数。历史发行文件名保持原样。
 
+1.7.1 起，选区重置集中在 `AppSession.ClearRegion`，清除当前目标的全部识别区域并同步其保存记录。默认剧情布局在捕获时由 `AutomaticDialogueArea` 计算，不回填手动选区；修改布局时同时核对 `ResolveRegion`、`ResolveTitleRegion` 和 `ResolveNameRegion`。
+
 ## 数据流程
 
 ```text
@@ -103,7 +105,7 @@ dotnet run --project tools/InteractionChecks -c Release -- .artifacts/interactio
    依赖下载受限时，可用 `-PackageSource C:\可信的本地NuGet包目录` 指定预先准备的包源。只对本次构建生效，不修改全局 NuGet 配置；正常构建继续使用默认包源。
 
 4. 将检查通过的提交合并到 `main`，本地检出同一提交。同版本重复构建时，将旧 `dist` 文件移到备份目录。
-5. 使用有发布权限的 GitHub 凭据运行 `.\tools\publish.ps1 -SkipPush`。
+5. 将本次实际核对结果写入独立 Markdown 记录，首行为 `# 边译 <版本>`，正文须包含当前源码提交。使用有发布权限的 GitHub 凭据运行 `.\tools\publish-release.ps1 -Publish -VerificationReport <记录路径>`。脚本核对干净提交、包内构建信息、文件摘要及同一提交的 CI；不会复用上一版验收结论。
 
 发布脚本先创建草稿，上传安装器、便携包和校验文件，核对大小与服务端摘要后公开。已公开的同名版本不会被覆盖。发布后检查三项资产和匿名下载。
 

@@ -1,5 +1,5 @@
 ﻿[CmdletBinding()]
-param([switch]$Publish, [switch]$WithdrawLegacyReleases)
+param([switch]$Publish, [switch]$WithdrawLegacyReleases, [string]$VerificationReport = '')
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $repo = 'wl8695573-blip/BianYi'
@@ -39,11 +39,14 @@ try {
 $notes = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'release-notes-bianyi.md'), [Text.Encoding]::UTF8)
 if (-not $notes.StartsWith("# 边译 $version")) { throw 'Update release notes for this version before publishing' }
 if ($Publish) {
-    $acceptance = Join-Path $root ".artifacts/package-bianyi-$version.txt"
-    if (-not (Test-Path -LiteralPath $acceptance) -or -not (Select-String -LiteralPath $acceptance -SimpleMatch 'Acceptance artifacts:')) {
-        throw 'Run actual package acceptance before publication'
+    if (-not $VerificationReport -or -not (Test-Path -LiteralPath $VerificationReport)) {
+        throw 'Provide a current verification report with -VerificationReport before publication'
     }
-    $notes += "`n`n## 本次发布验收`n`n244 项回归、223 项完整交互、27/27 固定 OCR 样本和 36/36 四语样本通过。实际日语截图的称号、姓名与正文分区通过；十二种方向完成真实在线翻译并核对。安装、LCTA 1.6.5 升级、再次升级、卸载、便携包与 SHA256 验收通过。`n"
+    $verification = [IO.File]::ReadAllText((Resolve-Path -LiteralPath $VerificationReport), [Text.Encoding]::UTF8)
+    if (-not $verification.StartsWith("# 边译 $version") -or -not $verification.Contains($commit)) {
+        throw 'Verification report must identify the current version and source commit'
+    }
+    $notes += "`n`n## 本次发布核对记录`n`n$verification`n"
 }
 $env:GIT_TERMINAL_PROMPT = '0'
 $credentialLines = "protocol=https`nhost=github.com`n`n" | git -C $root credential fill 2>$null

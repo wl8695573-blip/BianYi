@@ -4,7 +4,7 @@
 
 支持 **中文、日语、英语、韩语互译**，附带离线 OCR 模型。目前内置《边狱巴士》的独立基础词库，共 17 条语言映射，包含少量常见人名、称呼与缩写，并非完整游戏术语库。其他专名由翻译服务处理，也可自行添加术语。
 
-**当前版本：边译 1.7.0。** 沿用原仓库和旧用户设置，程序输出改为 `BianYi.exe`。
+**当前版本：边译 1.7.1。** 沿用原仓库和旧用户设置，程序输出改为 `BianYi.exe`。
 
 [下载](https://github.com/wl8695573-blip/BianYi/releases/latest) · [使用说明](docs/USAGE.md) · [更新记录](CHANGELOG.md) · [问题反馈](https://github.com/wl8695573-blip/BianYi/issues/new/choose)
 
@@ -20,9 +20,9 @@
 
 | 文件 | 用途 |
 |---|---|
-| [BianYi-Setup-1.7.0.exe](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.0/BianYi-Setup-1.7.0.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
-| [BianYi-win-x64-1.7.0.zip](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.0/BianYi-win-x64-1.7.0.zip) | 便携版，完整解压后运行 `BianYi/BianYi.exe`，保留同目录的 DLL、模型及词库。 |
-| [SHA256SUMS-1.7.0.txt](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.0/SHA256SUMS-1.7.0.txt) | 安装版和便携版的 SHA256 校验值。 |
+| [BianYi-Setup-1.7.1.exe](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.1/BianYi-Setup-1.7.1.exe) | 安装版，选择目录后创建快捷方式并登记到 Windows 应用列表。 |
+| [BianYi-win-x64-1.7.1.zip](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.1/BianYi-win-x64-1.7.1.zip) | 便携版，完整解压后运行 `BianYi/BianYi.exe`，保留同目录的 DLL、模型及词库。 |
+| [SHA256SUMS-1.7.1.txt](https://github.com/wl8695573-blip/BianYi/releases/download/v1.7.1/SHA256SUMS-1.7.1.txt) | 安装版和便携版的 SHA256 校验值。 |
 
 新安装请选择空目录；升级时先退出旧程序，再安装到原来已登记的目录。便携版解压到新目录，避免混用旧文件。默认沿用 `%APPDATA%\GuGuGaGaTranslator`，保留已有设置、密钥和个人术语；1.6.1 可在“支持”页迁移到其他磁盘。
 
@@ -34,11 +34,11 @@
 
 1. **配置服务。** 首次启动选择翻译服务，填写自己的账户或本地模型配置，测试后保存。预览模式仅识别，不翻译。
 2. **选择窗口。** 游戏建议使用窗口模式或无边框窗口；在左侧选择游戏或浏览器窗口。
-3. **框选字幕。** 点击“框选正文”，只选台词范围；再用“框选称号”和“框选姓名”分别选择角色信息。后续翻译使用保存的三个区域，并随窗口移动和尺寸调整；布局变化时重新框选。网页可只设置正文。
+3. **选择区域。** 边狱巴士默认剧情布局自动定位正文与人物信息，无需分别框选。网页和其他游戏可点击“框选区域”选择对话范围；手动选区优先并随窗口移动、缩放。点击“重置框选”清除当前窗口全部保存选区，恢复自动布局；其他配置保留。
 4. **选择方向并开始。** 默认自动识别原文并译成中文，也可切换十二种四语方向。非边狱巴士内容使用通用模式。
 5. **调整译文。** 控制条左端拖动柄可移动整组悬浮层，右端 `×` 关闭并停止翻译。长译文可在编辑模式下滚动查看。
 
-底部自动预设是可选入口，不能覆盖已保存的手动选区。要改用自动预设，先清除区域。
+底部自动预设是可选入口，不能覆盖已保存的手动选区。要改用自动预设，先点击“重置框选”。
 
 ## 悬浮球
 

@@ -35,6 +35,7 @@ public partial class MainWindow
             ("暂停 / 继续", () => OnPause(this, new RoutedEventArgs())),
             ("停止翻译", () => OnStop(this, new RoutedEventArgs())),
             ("手动框选字幕", () => { if (WindowList.SelectedItem is null) ShowMainControls(); OnRegionAndStart(); }),
+            ("重置框选", () => OnClearRegion(this, new RoutedEventArgs())),
             ("切换翻译方向", () => OnMainDirections(this, new RoutedEventArgs())),
             ("添加 / 编辑术语", () => { ShowMainControls(); OnOpenProfilesTab(this, new RoutedEventArgs()); }),
             ("移动译文 / 鼠标穿透", ToggleOverlayEditMode),
@@ -88,7 +89,7 @@ public partial class MainWindow
         {
             if (_session.Config.Target.ManualRegion && _session.Config.Target.Region is not null)
             {
-                OnNotice("已保留手动选区。需要自动预设时，请先清除区域。");
+                OnNotice("已保留手动选区。需要自动预设时，请先点击“重置框选”。");
                 return;
             }
             OnPickBottomStrip(this, new RoutedEventArgs());
